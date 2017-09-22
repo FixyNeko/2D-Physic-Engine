@@ -40,7 +40,7 @@ void positionCorrection(Manifold* m){
 void addObject(Object* O){
     std::cout << "2";
     for(int i =0; i < scene.size();  i++){
-        Manifold* m;
+        Manifold* m = new Manifold();
         m->A = O;
         m->B = scene[i];
         manifolds.push_back(m);

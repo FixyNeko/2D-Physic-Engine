@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
     Object* circle1= new Object(10, 0.5, circle, false);
     circle1->move(Vec2(0, 70));
 
-    std::cout << std::endl;
 
     
     addObject(aabb1);
