@@ -25,12 +25,14 @@ void resolveCollision(Object* A, Object* B){
     B->push(impulse * B->getInvMass());
 }
 
-void positionCorrection(Object* A, Object* B){
+void positionCorrection(Manifold* m){
+    Object* A = m->A;
+    Object* B = m->B;
     const float percent = 0.2; // Usually 20% - 80%
     const float treshold = 0.01; // Usually 0.1 to 0.1
-    if(penetrationDepth < treshold) return;
-    Vec2 correction = normal * (penetrationDepth * percent / (A->getInvMass() + B->getInvMass()));
-    A->move(correction * -(A->getInvMass());
+    if(m->penetrationDepth < treshold) return;
+    Vec2 correction = m->normal * (m->penetrationDepth * percent / (A->getInvMass() + B->getInvMass()));
+    A->move(correction * -(A->getInvMass()));
     B->move(correction * B->getInvMass());
 }
 
@@ -56,7 +58,8 @@ namespace physic{
 
 //TODO take car of shape position (currently supposing centered)
 bool collisionResolver(Manifold* m, AABB* abox, AABB* bbox){
-    Object* A = m->A, B = m->B;
+    Object* A = m->A;
+    Object* B = m->B;
     Vec2 n = B->getPosition() - A->getPosition(); // from B to A
 
     //extents along x
@@ -78,7 +81,7 @@ bool collisionResolver(Manifold* m, AABB* abox, AABB* bbox){
                 else
                     m->normal = Vec2(1,0);
                 m->penetrationDepth = x_overlap;
-                return true
+                return true;
             }
             else{
                 if(n.getY() < 0) // points toward B
@@ -86,20 +89,21 @@ bool collisionResolver(Manifold* m, AABB* abox, AABB* bbox){
                 else
                     m->normal = Vec2(0,1);
                 m->penetrationDepth = y_overlap;
-                return true
+                return true;
             }
         }
     }
     return false;
 }
 bool collisionResolver(Manifold* m, Circle* a, Circle* b){
-    Object* A = m->A, B = m->B;
+    Object* A = m->A;
+    Object* B = m->B;
     Vec2 n = B->getPosition() - A->getPosition(); // from A to B
 
     float r = a->getRadius() + b->getRadius();
 
     if(n.lengthSquared() > r*r)
-        return false // no collision
+        return false; // no collision
     
     float d = n.length();
 
@@ -108,20 +112,21 @@ bool collisionResolver(Manifold* m, Circle* a, Circle* b){
         m->normal = n / d; //d is n length, return a unit vector
     }
     else{
-        m->penetrationDepth = max(a->getRadius(), b->getRadius());
-        m->normal = Vec(0, 1); //default direction
+        m->penetrationDepth = std::max(a->getRadius(), b->getRadius());
+        m->normal = Vec2(0, 1); //default direction
     }
     return true;
 }
 bool collisionResolver(Manifold* m, AABB* abox, Circle* b){
-    Object* A = m->A, B = m->B;
-    Vec n = B->getPosition() - A->getPosition();
-    Vec closest = n; // Closest point on A to B's center (actually just dist beetween object's centers)
+    Object* A = m->A;
+    Object* B = m->B;
+    Vec2 n = B->getPosition() - A->getPosition();
+    Vec2 closest = n; // Closest point on A to B's center (actually just dist beetween object's centers)
 
     double x_extent = (abox->max.getX() - abox->min.getX());
     double y_extent = (abox->max.getY() - abox->min.getY());
 
-    closest = Vec(clamp(-x_extent, x_extent, closest.getX()),
+    closest = Vec2(clamp(-x_extent, x_extent, closest.getX()),
                     clamp(-y_extent, y_extent, closest.getY()));
 
     bool inside = false; // spécial case if center of circle is in the box
@@ -151,7 +156,7 @@ bool collisionResolver(Manifold* m, AABB* abox, Circle* b){
         return false;
     
     d = normal.length(); // sqrt(d) works too
-    n->normalize();
+    n.normalize();
 
     if(inside)
         m->normal = -n; // need to push the other way
@@ -166,10 +171,10 @@ bool collisionResolver(Manifold* m, Circle* a, AABB* b){
     return collisionResolver(m, b, a);
 }
 
-void clamp( double min_extent, double max_extent, double closest){
-    if(*closest > max_extent)
+double clamp( double min_extent, double max_extent, double closest){
+    if(closest > max_extent)
         return max_extent;
-    if(*closest < min_extent)
+    if(closest < min_extent)
         return min_extent;
     return closest;
 }

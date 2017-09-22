@@ -6,9 +6,9 @@
 
 class AABB: public Shape
 {
-    Vec2 min, max;
-
 public:
+    Vec2 min, max;
+    
     AABB();
     AABB(double width, double height);
     AABB(double xMin, double yMin, double xMax, double yMax);

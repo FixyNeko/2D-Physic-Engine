@@ -91,7 +91,7 @@ double Vec2::length(){
     return(sqrt(x*x + y*y));
 }
 
-double lengthSquared(){
+double Vec2::lengthSquared(){
     return(x*x + y*y);
 }
 

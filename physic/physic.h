@@ -4,7 +4,16 @@
 #include <cmath>
 #include <vector>
 #include "object/Object.h"
+#include "object/shapes/AABB.h"
+#include "object/shapes/Circle.h"
 
+struct Manifold
+{
+    Object* A;
+    Object* B;
+    double penetrationDepth;
+    Vec2 normal;
+};
 
 void resolveCollision(Object* A, Object* B);
 void positionCorrection(Object* A, Object* B);
@@ -13,17 +22,9 @@ bool collisionResolver(Manifold* m, AABB* a, AABB* b);
 bool collisionResolver(Manifold* m, Circle* a, Circle* b);
 bool collisionResolver(Manifold* m, AABB* a, Circle* b);
 bool collisionResolver(Manifold* m, Circle* a, AABB* b);
-void clamp( double min_extent, double max_extent, double closest);
+double clamp( double min_extent, double max_extent, double closest);
 void addObject(Object* O);
 void removeObject(Object* O);
-
-struct Manifold
-{
-    Object* A;
-    Object* B;
-    double penetrationDepth;
-    Vec2 normal;
-}
 
 namespace physic{
     void update();
