@@ -13,7 +13,7 @@
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
 
-int msaa = 0;
+int msaa = 16;
 double fpsLimit = 120;
 
 double angleX = 0, angleZ = 0;
@@ -25,9 +25,14 @@ int main(int argc, char *argv[])
 {
     ////////////////////////////////////////////////////////////////////////////////////////////
     AABB* aabb = new AABB(100,70);
-    Circle* circle = new Circle(30);
+    Circle* circle = new Circle(10/2);
     Object* aabb1 = new Object(20, 0.8, aabb, true);
     Object* circle1= new Object(10, 0.5, circle, false);
+    circle1->move(Vec2(0, 70));
+
+    std::cout << std::endl;
+
+    
     addObject(aabb1);
     addObject(circle1);
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +72,7 @@ int main(int argc, char *argv[])
         ellapsed_time = current_time - last_time;
         last_time = current_time;
 
-        SDL_WaitEvent(&event);
+        SDL_PollEvent(&event);
 
         switch(event.type)
         {

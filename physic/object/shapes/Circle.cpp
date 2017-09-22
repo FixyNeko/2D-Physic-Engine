@@ -28,5 +28,5 @@ void Circle::draw() const{
     glEnd();
 
     glPopMatrix();
-    std::cout << "Circle draw done" << std::endl;
+    
 }

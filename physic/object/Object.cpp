@@ -1,11 +1,12 @@
 #include "Object.h"
 #include <iostream>
+#include <GL/gl.h>
 
 Object::Object(double _mass, double _restitution, Shape* _shape, bool _isStatic):
     restitution(_restitution), shape(_shape), isStatic(_isStatic){
         this->setMass(_mass);
         position = velocity = Vec2();
-        rot = rotVelocity = 0;
+        rotation = rotationVelocity = 0;
 }
 
 Vec2& Object::getVelocity(){
@@ -26,6 +27,10 @@ double Object::getMass() const{
 
 double Object::getInvMass() const{
     return invMass;
+}
+
+Shape* Object::getShape(){
+    return shape;
 }
 
 double& Object::setMass(double& _mass){
@@ -50,7 +55,9 @@ void Object::move(const Vec2& v){
 }
 
 void Object::draw(){
-    
+    glPushMatrix();
+    glTranslated(position.getX(), position.getY(), 0);
+    glRotated(rotation, 0, 0, 1);
     shape->draw();
-    std::cout << "Object draw done" << std::endl;
+    glPopMatrix();
 }

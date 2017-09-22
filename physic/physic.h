@@ -17,7 +17,6 @@ struct Manifold
 
 void resolveCollision(Object* A, Object* B);
 void positionCorrection(Object* A, Object* B);
-void collisionDetection(Manifold* m);
 bool collisionResolver(Manifold* m, AABB* a, AABB* b);
 bool collisionResolver(Manifold* m, Circle* a, Circle* b);
 bool collisionResolver(Manifold* m, AABB* a, Circle* b);

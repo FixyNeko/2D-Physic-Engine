@@ -13,8 +13,8 @@ class Object
     bool isStatic;
     Vec2 position;
     Vec2 velocity;
-    double rot;
-    double rotVelocity;
+    double rotation;
+    double rotationVelocity;
 
 public:
     Object(double mass, double restitution, Shape* shape, bool isStatic);
@@ -23,6 +23,7 @@ public:
     double getRestitution() const;
     double getMass() const;
     double getInvMass() const;
+    Shape* getShape();
     double& setMass(double& _mass);
     void push(const Vec2& v);
     void move(const Vec2& v);

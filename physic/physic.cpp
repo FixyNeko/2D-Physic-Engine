@@ -4,6 +4,7 @@
 #include <iostream>
 
 std::vector<Object*> scene;
+std::vector<Manifold*> manifolds;
 
 void resolveCollision(Object* A, Object* B){
     //impulse resolution
@@ -36,13 +37,17 @@ void positionCorrection(Manifold* m){
     B->move(correction * B->getInvMass());
 }
 
-void collisionDetection(Manifold* m){
-    //return collision normal Vec2 and penetration depth double
-
-}
-
 void addObject(Object* O){
+    std::cout << "2";
+    for(int i =0; i < scene.size();  i++){
+        Manifold* m;
+        m->A = O;
+        m->B = scene[i];
+        manifolds.push_back(m);
+    }
+    std::cout << "3";
     scene.push_back(O);
+    std::cout << "4";
 }
 
 void removeObject(Object* O){
@@ -52,11 +57,20 @@ namespace physic{
     void draw(){
         for(int i = 0; i < scene.size(); i++)
             scene[i]->draw();
-        std::cout << "physic draw done" << std::endl << std::endl;
+    }
+
+    void update(){
+      /*  for(int i =0; i < manifolds.size(); i++){
+            Manifold* m = manifolds[i];
+
+            collisionResolver(m,
+                (typeid m->A->getShape(),
+                m->B->getShape());
+        }*/
     }
 }
 
-//TODO take car of shape position (currently supposing centered)
+//TODO take care of shape position (currently supposing centered)
 bool collisionResolver(Manifold* m, AABB* abox, AABB* bbox){
     Object* A = m->A;
     Object* B = m->B;

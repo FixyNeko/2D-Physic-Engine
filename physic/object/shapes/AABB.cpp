@@ -28,5 +28,5 @@ void AABB::draw() const{
         glVertex2d(max.getX(), min.getY());
     glEnd();
 
-    std::cout << "AABB draw done" << std::endl;
+    
 }
