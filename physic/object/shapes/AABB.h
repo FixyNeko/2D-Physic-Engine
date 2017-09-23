@@ -6,6 +6,7 @@
 
 class AABB: public Shape
 {
+    int type;
 public:
     Vec2 min, max;
     
@@ -14,6 +15,7 @@ public:
     AABB(double xMin, double yMin, double xMax, double yMax);
     AABB& translate(Vec2 v);
     AABB& rotate(double angle);
+    virtual int getType() const;
     virtual void draw() const;
 };
 

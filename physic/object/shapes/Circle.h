@@ -8,6 +8,7 @@ class Circle: public Shape
 {
     Vec2 pos;
     double radius;
+    int type;
 
 public:
     Circle();
@@ -15,7 +16,8 @@ public:
     Circle(Vec2 pos, double radius);
 
     Circle& translate(Vec2 v);
-    double getRadius();
+    double getRadius() const;
+    virtual int getType() const;
     virtual void draw() const;
 };
 

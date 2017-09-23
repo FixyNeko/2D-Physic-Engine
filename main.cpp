@@ -4,6 +4,7 @@
 #include <GL/freeglut.h>
 #include <string>
 #include <iostream>
+#include <cstdint>
 #include "main.h"
 #include "physic/utils/Vec2.h"
 #include "physic/object/shapes/AABB.h"
@@ -11,29 +12,38 @@
 #include "physic/physic.h"
 
 #define WINDOW_WIDTH 1000
-#define WINDOW_HEIGHT 700
+#define WINDOW_HEIGHT 900
 
-int msaa = 16;
+int msaa = 8;
 double fpsLimit = 120;
 
 double angleX = 0, angleZ = 0;
 
-Uint32 last_time, current_time, ellapsed_time, start_time;
+unsigned int last_time, current_time, ellapsed_time, start_time;
 SDL_Window *screen;
 
 int main(int argc, char *argv[])
 {
     ////////////////////////////////////////////////////////////////////////////////////////////
-    AABB* aabb = new AABB(100,70);
-    Circle* circle = new Circle(10/2);
-    Object* aabb1 = new Object(20, 0.8, aabb, true);
-    Object* circle1= new Object(10, 0.5, circle, false);
-    circle1->move(Vec2(0, 70));
+    AABB* box1 = new AABB(100,70);
+    AABB* box2 = new AABB(30, 80);
+    Circle* circles1 = new Circle(10/2);
+    Circle* circles2 = new Circle(100/2);
 
+    Object* aabb1 = new Object(0, 1, box1, false);
+    Object* aabb2 = new Object(50, 0.5, box2, false);
+    Object* circle1 = new Object(78.54, 0.9, circles1, false);
+    Object* circle2 = new Object(7854, 0.9, circles2, false);
+    aabb1->move(Vec2(0, -WINDOW_HEIGHT/2 + 120));
+    circle2->move(Vec2(20, 200));
+    circle2->push(Vec2(0, -10));
+    circle1->move(Vec2(1, 300));
 
-    
+    aabb1->setStatic(true);
+
+    //addObject(circle1);
     addObject(aabb1);
-    addObject(circle1);
+    addObject(circle2);
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     SDL_Event event;
@@ -67,12 +77,7 @@ int main(int argc, char *argv[])
 
     for (;;)
     {
-        current_time = SDL_GetTicks();
-        ellapsed_time = current_time - last_time;
-        last_time = current_time;
-
         SDL_PollEvent(&event);
-
         switch(event.type)
         {
             case SDL_QUIT:
@@ -80,6 +85,11 @@ int main(int argc, char *argv[])
             break;
         }
 
+        current_time = SDL_GetTicks();
+        ellapsed_time = current_time - last_time;
+        last_time = current_time;
+
+        physic::update(ellapsed_time);
         draw(&screen);
 
         fpsInTitle();

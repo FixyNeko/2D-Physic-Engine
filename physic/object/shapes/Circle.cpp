@@ -4,17 +4,21 @@
 #include <iostream>
 #include <cmath>
 
-Circle::Circle(): pos(Vec2()), radius(0) {}
-Circle::Circle(double r): pos(Vec2()), radius(r) {}
-Circle::Circle(Vec2 p, double r): pos(p), radius(r) {}
+Circle::Circle(): pos(Vec2()), radius(0), type(_CIRCLE) {}
+Circle::Circle(double r): pos(Vec2()), radius(r), type(_CIRCLE) {}
+Circle::Circle(Vec2 p, double r): pos(p), radius(r), type(_CIRCLE) {}
 
 Circle& Circle::translate(Vec2 v){
     pos += v;
     return *this;
 }
 
-double Circle::getRadius(){
+double Circle::getRadius() const{
     return radius;
+}
+
+int Circle::getType() const{
+    return type;
 }
 
 void Circle::draw() const{

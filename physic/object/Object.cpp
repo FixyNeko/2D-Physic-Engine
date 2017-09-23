@@ -42,6 +42,11 @@ double& Object::setMass(double& _mass){
     return mass;
 }
 
+bool& Object::setStatic(bool _isStatic){
+    isStatic = _isStatic;
+    return isStatic;
+}
+
 void Object::push(const Vec2& v){
     if(isStatic) return;
     Vec2 w = v;

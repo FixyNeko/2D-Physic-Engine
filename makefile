@@ -20,4 +20,5 @@ CPP=main.cpp physic\physic.cpp \
 
 main: main.cpp
 	g++ $(CPP) -o main -LD:\Documents\C++\Libraries\SDL2\lib $(INCD_P) $(INC_P)
+	./main.exe
 #	PowerShell -Command "(ls -R -Inc *.cpp -Name) -join ' ' | g++ -x c++ -o main -LD:\Documents\C++\Libraries\SDL2\lib $(INCD_P) $(INC_P) -"

@@ -25,6 +25,7 @@ public:
     double getInvMass() const;
     Shape* getShape();
     double& setMass(double& _mass);
+    bool& setStatic(bool _isStatic);
     void push(const Vec2& v);
     void move(const Vec2& v);
     void draw();

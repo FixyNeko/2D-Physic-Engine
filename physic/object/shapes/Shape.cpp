@@ -3,6 +3,10 @@
 #include <GL/glu.h>
 #include <iostream>
 
+int Shape::getType() const{
+    return NULL;
+}
+
 void Shape::draw() const{
     GLUquadric* params = gluNewQuadric();
     gluQuadricDrawStyle(params, GLU_LINE);

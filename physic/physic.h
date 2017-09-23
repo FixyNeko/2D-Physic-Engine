@@ -15,18 +15,18 @@ struct Manifold
     Vec2 normal;
 };
 
-void resolveCollision(Object* A, Object* B);
-void positionCorrection(Object* A, Object* B);
-bool collisionResolver(Manifold* m, AABB* a, AABB* b);
-bool collisionResolver(Manifold* m, Circle* a, Circle* b);
-bool collisionResolver(Manifold* m, AABB* a, Circle* b);
-bool collisionResolver(Manifold* m, Circle* a, AABB* b);
+void resolveCollision(Manifold* m);
+void positionCorrection(Manifold* m);
+bool AABBvsAABB(Manifold* m);
+bool CIRCLEvsCIRCLE(Manifold* m);
+bool AABBvsCIRCLE(Manifold* m);
+bool CIRCLEvsAABB(Manifold* m);
 double clamp( double min_extent, double max_extent, double closest);
 void addObject(Object* O);
 void removeObject(Object* O);
 
 namespace physic{
-    void update();
+    void update(unsigned int dt);
     void draw();
 }
 
