@@ -67,7 +67,7 @@ namespace physic{
             scene[i]->draw();
     }
 
-    void update(unsigned int dt){
+    void update(int dt){
         double dts = ((double) dt) * speed / 1000;
         for(int i = 0; i < scene.size(); i++){
             scene[i]->push(acceleration * dts);
@@ -76,11 +76,9 @@ namespace physic{
 
         for(int i = 0; i < manifolds.size(); i++){
             Manifold* m = manifolds[i];
-//            std::cout << "manifolds get " << i << std::endl;
             Shape* a = m->A->getShape();
             Shape* b = m->B->getShape();
 
-//            std::cout << "a: " << a->getType() << ", b: " << b->getType() << std::endl;
             if( collisionResolverArray[a->getType()][b->getType()](m) ){
                 resolveCollision(m);
                 positionCorrection(m);

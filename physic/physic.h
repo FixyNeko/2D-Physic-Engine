@@ -26,7 +26,7 @@ void addObject(Object* O);
 void removeObject(Object* O);
 
 namespace physic{
-    void update(unsigned int dt);
+    void update(int dt);
     void draw();
 }
 

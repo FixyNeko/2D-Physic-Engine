@@ -10,12 +10,11 @@
 #include "physic/object/shapes/AABB.h"
 #include "physic/object/shapes/Circle.h"
 #include "physic/physic.h"
-
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 900
 
 int msaa = 8;
-double fpsLimit = 120;
+double fpsLimit = 5;
 
 double angleX = 0, angleZ = 0;
 
@@ -89,7 +88,7 @@ int main(int argc, char *argv[])
         ellapsed_time = current_time - last_time;
         last_time = current_time;
 
-        physic::update(ellapsed_time);
+        physic::update(std::min(10, (int) ellapsed_time)); // slow down physic to avoid teleports
         draw(&screen);
 
         fpsInTitle();
