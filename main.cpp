@@ -24,6 +24,8 @@ SDL_Window *screen;
 int main(int argc, char *argv[])
 {
     ////////////////////////////////////////////////////////////////////////////////////////////
+    addWindowBoundaries();
+
     AABB* box1 = new AABB(100,70);
     AABB* box2 = new AABB(30, 80);
     Circle* circles1 = new Circle(10/2);
@@ -32,7 +34,7 @@ int main(int argc, char *argv[])
     Object* aabb1 = new Object(0, 1, box1, false);
     Object* aabb2 = new Object(50, 0.5, box2, false);
     Object* circle1 = new Object(78.54, 0.9, circles1, false);
-    Object* circle2 = new Object(7854, 0.9, circles2, false);
+    Object* circle2 = new Object(7854, 1, circles2, false);
     aabb1->move(Vec2(0, -WINDOW_HEIGHT/2 + 120));
     circle2->move(Vec2(20, 200));
     circle2->push(Vec2(0, -10));
@@ -41,7 +43,7 @@ int main(int argc, char *argv[])
     aabb1->setStatic(true);
 
     //addObject(circle1);
-    addObject(aabb1);
+    //addObject(aabb1);
     addObject(circle2);
     ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,9 +81,17 @@ int main(int argc, char *argv[])
         SDL_PollEvent(&event);
         switch(event.type)
         {
+            case SDL_KEYDOWN:
+                switch(event.key.keysym.sym)
+                {
+                    case SDLK_e:
+                        circle2->push(Vec2(50,150));
+                        break;
+                }
+                break;
             case SDL_QUIT:
-            exit(0);
-            break;
+                exit(0);
+                break;
         }
 
         current_time = SDL_GetTicks();
@@ -92,7 +102,7 @@ int main(int argc, char *argv[])
         draw(&screen);
 
         fpsInTitle();
-        SDL_Delay(max((double)1000./fpsLimit - (SDL_GetTicks()-current_time), 0));
+        SDL_Delay(std::max((double)1000./fpsLimit - (SDL_GetTicks()-current_time), 0.));
     }
 
     return 0;
@@ -118,10 +128,25 @@ void fpsInTitle(){
     SDL_SetWindowTitle(screen, title -> c_str());
 }
 
-double max(double a, double b)
-{
-    if(a > b)
-        return a;
-    else
-        return b;
+void addWindowBoundaries(){
+    AABB* horizontals = new AABB(WINDOW_WIDTH + 20, 10);
+    AABB* verticals = new AABB(10, WINDOW_HEIGHT + 20);
+
+    Object* top = new Object(0, 1, horizontals, false);
+    top->move(Vec2(0, WINDOW_HEIGHT/2 + 5));
+    top->setStatic(true);
+    Object* bottom = new Object(0, 1, horizontals, false);
+    bottom->move(Vec2(0, -WINDOW_HEIGHT/2 - 5));
+    bottom->setStatic(true);
+    Object* left = new Object(0, 1, verticals, false);
+    left->move(Vec2(-WINDOW_WIDTH/2 - 5, 0));
+    left->setStatic(true);
+    Object* right = new Object(0, 1, verticals, false);
+    right->move(Vec2(WINDOW_WIDTH/2 + 5, 0));
+    right->setStatic(true);
+
+    addObject(top);
+    addObject(bottom);
+    addObject(left);
+    addObject(right);
 }
