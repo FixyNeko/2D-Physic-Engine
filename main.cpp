@@ -14,7 +14,7 @@
 #define WINDOW_HEIGHT 900
 
 int msaa = 8;
-double fpsLimit = 5;
+double fpsLimit = 10000000000000;
 
 double angleX = 0, angleZ = 0;
 
