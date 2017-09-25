@@ -8,7 +8,7 @@ std::vector<Object*> scene;
 std::vector<Manifold*> manifolds;
 
 double scale = 10000/100;
-double speed = 0.6;
+double speed = 0.8;
 Vec2 acceleration = Vec2(0, -9.8*scale);
 
 // AABB 0, CIRCLE 1, POLYGON 2
@@ -22,7 +22,7 @@ void resolveCollision(Manifold* m){
     Object* B = m->B;
     //impulse resolution
     Vec2 rVel = A->getVelocity() - B->getVelocity();
-    double normalVelocity = dot(rVel, m->normal);
+    double normalVelocity = dot(rVel, m->normal));
 
     if(normalVelocity < 0)
         return;

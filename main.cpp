@@ -26,24 +26,10 @@ int main(int argc, char *argv[])
     ////////////////////////////////////////////////////////////////////////////////////////////
     addWindowBoundaries();
 
-    AABB* box1 = new AABB(100,70);
-    AABB* box2 = new AABB(30, 80);
-    Circle* circles1 = new Circle(10/2);
     Circle* circles2 = new Circle(100/2);
-
-    Object* aabb1 = new Object(0, 1, box1, false);
-    Object* aabb2 = new Object(50, 0.5, box2, false);
-    Object* circle1 = new Object(78.54, 0.9, circles1, false);
-    Object* circle2 = new Object(7854, 1, circles2, false);
-    aabb1->move(Vec2(0, -WINDOW_HEIGHT/2 + 120));
+    Object* circle2 = new Object(7854, 2, circles2, false);
     circle2->move(Vec2(20, 200));
-    circle2->push(Vec2(0, -10));
-    circle1->move(Vec2(1, 300));
-
-    aabb1->setStatic(true);
-
-    //addObject(circle1);
-    //addObject(aabb1);
+    circle2->push(Vec2(500, 200));
     addObject(circle2);
     ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +71,7 @@ int main(int argc, char *argv[])
                 switch(event.key.keysym.sym)
                 {
                     case SDLK_e:
-                        circle2->push(Vec2(50,150));
+                        circle2->getVelocity() += 50.;
                         break;
                 }
                 break;
@@ -132,16 +118,16 @@ void addWindowBoundaries(){
     AABB* horizontals = new AABB(WINDOW_WIDTH + 20, 10);
     AABB* verticals = new AABB(10, WINDOW_HEIGHT + 20);
 
-    Object* top = new Object(0, 1, horizontals, false);
+    Object* top = new Object(0, 10000, horizontals, false);
     top->move(Vec2(0, WINDOW_HEIGHT/2 + 5));
     top->setStatic(true);
-    Object* bottom = new Object(0, 1, horizontals, false);
+    Object* bottom = new Object(0, 10000, horizontals, false);
     bottom->move(Vec2(0, -WINDOW_HEIGHT/2 - 5));
     bottom->setStatic(true);
-    Object* left = new Object(0, 1, verticals, false);
+    Object* left = new Object(0, 10000, verticals, false);
     left->move(Vec2(-WINDOW_WIDTH/2 - 5, 0));
     left->setStatic(true);
-    Object* right = new Object(0, 1, verticals, false);
+    Object* right = new Object(0, 10000, verticals, false);
     right->move(Vec2(WINDOW_WIDTH/2 + 5, 0));
     right->setStatic(true);
 
