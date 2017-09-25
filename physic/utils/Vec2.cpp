@@ -58,6 +58,18 @@ Vec2 Vec2::operator-(double m){
     double l = this -> length();
     return Vec2(Vec2(x, y) / l * (l-m));
 }
+
+Vec2& Vec2::operator+=(double m){
+    double l = this -> length();
+    x = x/l * (l+m);
+    y = y/l * (l+m);
+}
+
+Vec2& Vec2::operator-=(double m){
+    double l = this -> length();
+    x = x/l * (l-m);
+    y = y/l * (l-m);
+}
     
 Vec2 Vec2::operator*(double m){
     return Vec2(x*m, y*m);
