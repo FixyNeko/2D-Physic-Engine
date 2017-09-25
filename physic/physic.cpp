@@ -22,7 +22,7 @@ void resolveCollision(Manifold* m){
     Object* B = m->B;
     //impulse resolution
     Vec2 rVel = A->getVelocity() - B->getVelocity();
-    double normalVelocity = dot(rVel, m->normal));
+    double normalVelocity = dot(rVel, m->normal);
 
     if(normalVelocity < 0)
         return;
@@ -196,7 +196,11 @@ bool AABBvsCIRCLE(Manifold* m){
     if(d > r*r && !inside) // when inside, you want to push no matter what
         return false;
     d = normal.length(); // sqrt(d) works too
-    m->normal = normal / d;
+
+    if(inside)
+        m->normal = normal / -d;
+    else
+        m->normal = normal / d;
     m->penetrationDepth = r - d;
 
     return true;
