@@ -267,6 +267,7 @@ bool POLYGONvsPOLYGON(Manifold *m)
             angle = (AB.getX() < 0) ? 180 : 0;
         }
         angle -= 90.; // because we project on a normal line to every side
+        
 
         Vec2 Apos = A->getPosition();
         Vec2 Bpos = B->getPosition();
@@ -302,8 +303,21 @@ bool POLYGONvsPOLYGON(Manifold *m)
         if (overlap < m->penetrationDepth)
         {
             m->penetrationDepth = overlap; // searching least axis of penetration
-            m->normal = Vec2(1, 0).rotate(angle); // normal to the line
+            double moyA = (minA + maxA) / 2;
+            double moyB = (minB + maxB) / 2;
+            m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
         }
+
+        glBegin(GL_LINE_LOOP);
+            glColor3ub(0,255,0);
+            AB/=2;
+            Vec2 center = Apos + *a[i] + AB;
+            Vec2 normal = AB.ortho().normalize();
+            normal *= 25;
+            Vec2 destination = center + (normal);
+            glVertex2d(center.getX(), center.getY());
+            glVertex2d(destination.getX(), destination.getY());
+        glEnd();
     }
 
     //check SAT normal to all axis of B
@@ -323,7 +337,7 @@ bool POLYGONvsPOLYGON(Manifold *m)
         {
             angle = (AB.getX() < 0) ? 180 : 0;
         }
-        angle += 90.; // because we project on a normal line to every side
+        angle -= 90.; // because we project on a normal line to every side
 
         Vec2 Apos = A->getPosition();
         Vec2 Bpos = B->getPosition();
@@ -360,8 +374,21 @@ bool POLYGONvsPOLYGON(Manifold *m)
         if (overlap < m->penetrationDepth)
         {
             m->penetrationDepth = overlap; // searching least axis of penetration
-            m->normal = Vec2(-1, 0).rotate(angle); // normal to the line
+            double moyA = (minA + maxA) / 2;
+            double moyB = (minB + maxB) / 2;
+            m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
         }
+
+        glBegin(GL_LINE_LOOP);
+            glColor3ub(0,255,0);
+            AB/=2;
+            Vec2 center = Bpos + *b[i] + AB;
+            Vec2 normal = AB.ortho().normalize();
+            normal *= 25;
+            Vec2 destination = center + (normal);
+            glVertex2d(center.getX(), center.getY());
+            glVertex2d(destination.getX(), destination.getY());
+        glEnd();
     }
     return true; // no separate axis found, colliding, m was updated
 }

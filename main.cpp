@@ -14,7 +14,7 @@
 #define WINDOW_HEIGHT 1000
 
 int msaa = 16;
-double fpsLimit = 60;
+double fpsLimit = 240;
 
 double angleX = 0, angleZ = 0;
 
@@ -59,11 +59,9 @@ Object* addPoly2(){
     addObject(poly);
 
     vertexs.clear();
-    std::cout << vertexs.size() << std::endl;
     vertexs.push_back(new Vec2(250, 100));
     vertexs.push_back(new Vec2(500,250));
     vertexs.push_back(new Vec2(0, 100));
-    std::cout << vertexs.size() << std::endl;
 
     polys = new Poly(vertexs);
     poly = new Object(0, 1, polys, false);
@@ -78,6 +76,8 @@ int main(int argc, char *argv[])
 {
     ////////////////////////////////////////////////////////////////////////////////////////////
     //addWindowBoundaries();
+
+    Vec2(10, 0).rotate(-135).print();
 
     Object* poly = addPoly();
     addPoly2();
@@ -147,6 +147,8 @@ int main(int argc, char *argv[])
         ellapsed_time = current_time - last_time;
         last_time = current_time;
 
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         physic::update(std::min(10, (int) ellapsed_time)); // slow down physic to avoid teleports
         draw(&screen);
 
@@ -159,7 +161,7 @@ int main(int argc, char *argv[])
 
 void draw(SDL_Window** screen)
 {
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity( );
 
