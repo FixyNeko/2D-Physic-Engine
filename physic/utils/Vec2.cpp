@@ -1,5 +1,6 @@
 #include "Vec2.h"
 #include <cmath>
+#include <iostream>
 
 Vec2::Vec2(): x(0), y(0) {}
 Vec2::Vec2(double x, double y): x(x), y(y) {}
@@ -135,4 +136,8 @@ double dot(Vec2& v1, Vec2& v2) {
 }
 double cross(Vec2& v1, Vec2& v2) {
     return (v1.getX() * v2.getY()) - (v1.getY() * v2.getX());
+}
+
+void Vec2::print() const{
+    std::cout << "(" << x << ":" << y << ")";
 }

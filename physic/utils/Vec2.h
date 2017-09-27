@@ -34,6 +34,7 @@ public:
     Vec2& normalize();
     Vec2& rotate(double angle);
     Vec2 ortho() const;
+    void print() const;
 };
 
 double dot(Vec2& v1, Vec2& v2);
