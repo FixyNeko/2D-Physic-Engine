@@ -6,6 +6,7 @@
 #include "object/Object.h"
 #include "object/shapes/AABB.h"
 #include "object/shapes/Circle.h"
+#include "object/shapes/Polygon.h"
 
 struct Manifold
 {
@@ -17,10 +18,15 @@ struct Manifold
 
 void resolveCollision(Manifold* m);
 void positionCorrection(Manifold* m);
+
 bool AABBvsAABB(Manifold* m);
-bool CIRCLEvsCIRCLE(Manifold* m);
 bool AABBvsCIRCLE(Manifold* m);
-bool CIRCLEvsAABB(Manifold* m);
+bool AABBvsPOLYGON(Manifold* m);
+bool CIRCLEvsCIRCLE(Manifold* m);
+bool CIRCLEvsPOLYGON(Manifold* m);
+bool POLYGONvsPOLYGON(Manifold* m);
+
+bool swap(Manifold* m);
 double clamp( double min_extent, double max_extent, double closest);
 void addObject(Object* O);
 void removeObject(Object* O);

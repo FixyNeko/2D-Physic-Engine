@@ -47,8 +47,8 @@
             "includePath": [
                 "${workspaceRoot}",
                 "D:\\Documents\\C++\\Libraries",
-                "D:\\Programs\\MinGW\\lib\\gcc\\mingw32\\6.3.0\\include\\c++",
-                "D:\\Programs\\MinGW\\include"
+                "D:\\Programs\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\7.1.0\\include\\c++",
+                "D:\\Programs\\mingw64\\x86_64-w64-mingw32\\include"
             ],
             "defines": [
                 "_DEBUG",
@@ -59,8 +59,8 @@
                 "path": [
                     "${workspaceRoot}",
                     "D:\\Documents\\C++\\Libraries\\",
-                    "D:\\Programs\\MinGW\\lib\\gcc\\mingw32\\6.3.0\\include\\c++",
-                    "D:\\Programs\\MinGW\\include"
+                    "D:\\Programs\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\7.1.0\\include\\c++",
+                    "D:\\Programs\\mingw64\\x86_64-w64-mingw32\\include"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""

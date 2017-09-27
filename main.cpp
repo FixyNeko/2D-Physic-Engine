@@ -11,10 +11,10 @@
 #include "physic/object/shapes/Circle.h"
 #include "physic/physic.h"
 #define WINDOW_WIDTH 1000
-#define WINDOW_HEIGHT 900
+#define WINDOW_HEIGHT 1000
 
 int msaa = 16;
-double fpsLimit = 10000000000000;
+double fpsLimit = 60;
 
 double angleX = 0, angleZ = 0;
 
@@ -31,12 +31,56 @@ Object* addCircle(){
     return circle2;
 }
 
+Object* addPoly(){
+    std::vector<Vec2*> vertexs;
+    vertexs.push_back(new Vec2(0, 0));
+    vertexs.push_back(new Vec2(-100, 0));
+    vertexs.push_back(new Vec2(-100, -100));
+    vertexs.push_back(new Vec2(100, -100));
+
+    Poly* polys = new Poly(vertexs);
+    Object* poly = new Object(7854, 0.95, polys, false);
+    poly->move(Vec2(0, 0));
+    addObject(poly);
+
+    return poly;
+}
+
+Object* addPoly2(){
+    std::vector<Vec2*> vertexs;
+    vertexs.push_back(new Vec2(-250, 250));
+    vertexs.push_back(new Vec2(-250, 100));
+    vertexs.push_back(new Vec2(0, 100));
+
+    Poly* polys = new Poly(vertexs);
+    Object* poly = new Object(0, 1, polys, false);
+    poly->move(Vec2(0, -400));
+    poly->setStatic(true);
+    addObject(poly);
+
+    vertexs.clear();
+    std::cout << vertexs.size() << std::endl;
+    vertexs.push_back(new Vec2(250, 100));
+    vertexs.push_back(new Vec2(500,250));
+    vertexs.push_back(new Vec2(0, 100));
+    std::cout << vertexs.size() << std::endl;
+
+    polys = new Poly(vertexs);
+    poly = new Object(0, 1, polys, false);
+    poly->move(Vec2(0, -400));
+    poly->setStatic(true);
+    addObject(poly);
+
+    return poly;
+}
+
 int main(int argc, char *argv[])
 {
     ////////////////////////////////////////////////////////////////////////////////////////////
-    addWindowBoundaries();
+    //addWindowBoundaries();
 
-    Object* circle2 = addCircle();
+    Object* poly = addPoly();
+    addPoly2();
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     SDL_Event event;
@@ -64,6 +108,7 @@ int main(int argc, char *argv[])
     glLoadIdentity();
     gluOrtho2D(-WINDOW_WIDTH/2, WINDOW_WIDTH/2, -WINDOW_HEIGHT/2, WINDOW_HEIGHT/2);
 
+    physic::update(0);
     draw(&screen);
 
     last_time = SDL_GetTicks();
@@ -77,19 +122,19 @@ int main(int argc, char *argv[])
                 switch(event.key.keysym.sym)
                 {
                     case SDLK_e:
-                        addCircle();
+                        addPoly();
                         break;
                     case SDLK_z:
-                        circle2->push(Vec2(0,100));
+                        poly->push(Vec2(0,50));
                         break;
                     case SDLK_s:
-                        circle2->push(Vec2(0,-100));
+                        poly->push(Vec2(0,-10));
                         break;
                     case SDLK_q:
-                        circle2->push(Vec2(-100,0));
+                        poly->push(Vec2(-10,0));
                         break;
                     case SDLK_d:
-                        circle2->push(Vec2(100,0));
+                        poly->push(Vec2(10,0));
                         break;
                 }
                 break;
@@ -106,7 +151,7 @@ int main(int argc, char *argv[])
         draw(&screen);
 
         fpsInTitle();
-        SDL_Delay(std::max((double)1000./fpsLimit - (SDL_GetTicks()-current_time), 0.));
+        SDL_Delay(std::max(1000./fpsLimit - (SDL_GetTicks()-current_time), 0.));
     }
 
     return 0;

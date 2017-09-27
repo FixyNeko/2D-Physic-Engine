@@ -21,6 +21,24 @@
         "ostream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "cstddef": "cpp",
+        "cstring": "cpp",
+        "ios": "cpp",
+        "string": "cpp",
+        "utility": "cpp",
+        "vector": "cpp",
+        "xfacet": "cpp",
+        "xiosbase": "cpp",
+        "xlocale": "cpp",
+        "xlocinfo": "cpp",
+        "xlocnum": "cpp",
+        "xmemory": "cpp",
+        "xmemory0": "cpp",
+        "xstddef": "cpp",
+        "xstring": "cpp",
+        "xtr1common": "cpp",
+        "xutility": "cpp",
+        "C_Cpp.intelliSenseEngine": "Default"
     }
 }

@@ -117,8 +117,8 @@ Vec2& Vec2::normalize(){
 
 Vec2& Vec2::rotate(double deg) {
 	double theta = deg / 180.0 * M_PI;
-	double c = cos(theta);
-	double s = sin(theta);
+	double c = std::cos(theta);
+	double s = std::sin(theta);
 	double tx = x * c - y * s;
 	double ty = x * s + y * c;
 	x = tx;

@@ -1,8 +1,4 @@
 #include "Circle.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <iostream>
-#include <cmath>
 
 Circle::Circle(): pos(Vec2()), radius(0), type(_CIRCLE) {}
 Circle::Circle(double r): pos(Vec2()), radius(r), type(_CIRCLE) {}
