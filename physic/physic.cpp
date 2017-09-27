@@ -85,8 +85,6 @@ void update(int dt)
         scene[i]->push(acceleration * dts);
         scene[i]->move(scene[i]->getVelocity() * dts);
     }
-
-    std::cout << "Manifolds size: " << manifolds.size() << std::endl;
     
     for (int i = 0; i < manifolds.size(); i++)
     {
@@ -266,7 +264,7 @@ bool POLYGONvsPOLYGON(Manifold *m)
         }
         else
         {
-            angle = (AB.getX() < 0) ? 0 : 180;
+            angle = (AB.getX() < 0) ? 180 : 0;
         }
         angle -= 90.; // because we project on a normal line to every side
 
@@ -275,7 +273,8 @@ bool POLYGONvsPOLYGON(Manifold *m)
 
         Vec2 v = (*a[0] + Apos);
         v.rotate(-angle);
-        double minA, maxA = v.getX();
+        double maxA = v.getX();
+        double minA = maxA;
         for (int j = 1; j < a.size(); j++)
         {
             v = (*a[j] + Apos); // rotate every vertex to project on x axis, -angle to go fom cur. pos to axis (angle is from axis)
@@ -286,7 +285,8 @@ bool POLYGONvsPOLYGON(Manifold *m)
 
         v = (*b[0] + Bpos);
         v.rotate(-angle);
-        double minB, maxB = v.getX();
+        double maxB = v.getX();
+        double minB = maxB;
         for (int j = 1; j < b.size(); j++)
         {
             v = (*b[j] + Bpos);
@@ -296,10 +296,8 @@ bool POLYGONvsPOLYGON(Manifold *m)
         }
 
         double overlap = std::min(maxA, maxB) - std::max(minA, minB);
-        if (overlap <= 0.000001)
-        {
-            return false;
-        } // this axis separates the polygons, not touching
+        if (overlap < 0)
+            return false; // this axis separates the polygons, not touching
 
         if (overlap < m->penetrationDepth)
         {
@@ -323,16 +321,17 @@ bool POLYGONvsPOLYGON(Manifold *m)
         }
         else
         {
-            angle = (AB.getX() < 0) ? 0 : 180;
+            angle = (AB.getX() < 0) ? 180 : 0;
         }
-        angle -= 90.; // because we project on a normal line to every side
+        angle += 90.; // because we project on a normal line to every side
 
         Vec2 Apos = A->getPosition();
         Vec2 Bpos = B->getPosition();
 
         Vec2 v = (*a[0] + Apos);
         v.rotate(-angle);
-        double minA, maxA = v.getX();
+        double maxA = v.getX();
+        double minA = maxA;
         for (int j = 1; j < a.size(); j++)
         {
             v = (*a[j] + Apos); // rotate every vertex to project on x axis, -angle to go fom cur. pos to axis (angle is from axis)
@@ -343,7 +342,8 @@ bool POLYGONvsPOLYGON(Manifold *m)
 
         v = (*b[0] + Bpos);
         v.rotate(-angle);
-        double minB, maxB = v.getX();
+        double maxB = v.getX();
+        double minB = maxB;
         for (int j = 1; j < b.size(); j++)
         {
             v = (*b[j] + Bpos);
@@ -354,10 +354,8 @@ bool POLYGONvsPOLYGON(Manifold *m)
 
         double overlap = std::min(maxA, maxB) - std::max(minA, minB);
 
-        if (overlap <= 0.000001)
-        {
-            return false;
-        } // this axis separates the polygons, not touching
+        if (overlap < 0)
+            return false; // this axis separates the polygons, not touching
 
         if (overlap < m->penetrationDepth)
         {
@@ -365,7 +363,6 @@ bool POLYGONvsPOLYGON(Manifold *m)
             m->normal = Vec2(-1, 0).rotate(angle); // normal to the line
         }
     }
-    std::cout << std::endl << m->penetrationDepth << std::endl << std::endl;
     return true; // no separate axis found, colliding, m was updated
 }
 bool swap(Manifold *m)
