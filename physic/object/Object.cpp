@@ -2,9 +2,10 @@
 #include <iostream>
 #include <GL/gl.h>
 
-Object::Object(double _mass, double _restitution, double _staticFriction, double _dynamicFriction, Shape* _shape, bool _isStatic):
-    restitution(_restitution), staticFriction(_staticFriction), dynamicFriction(_dynamicFriction), shape(_shape), isStatic(_isStatic){
+Object::Object(double _mass, double _inertia, double _restitution, double _staticFriction, double _dynamicFriction, Shape* _shape, bool _isStatic):
+    inertia(_inertia), restitution(_restitution), staticFriction(_staticFriction), dynamicFriction(_dynamicFriction), shape(_shape), isStatic(_isStatic){
         this->setMass(_mass);
+
         position = velocity = Vec2();
         rotation = rotationVelocity = 0;
 }
@@ -15,6 +16,14 @@ Vec2& Object::getVelocity(){
 
 Vec2& Object::getPosition(){
     return position;
+}
+
+double Object::getRotation(){
+    return rotation;
+}
+
+double Object::getRotationVelocity(){
+    return rotationVelocity;
 }
 
 double Object::getRestitution() const{
@@ -54,7 +63,7 @@ bool& Object::setStatic(bool _isStatic){
     return isStatic;
 }
 
-void Object::push(const Vec2& v){
+void Object::addVelocity(const Vec2& v){
     if(isStatic) return;
     Vec2 w = v;
     velocity += w;

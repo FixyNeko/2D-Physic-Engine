@@ -8,6 +8,7 @@ class Object
 {
     double mass;
     double invMass;
+    double inertia;
     double restitution;
     double staticFriction;
     double dynamicFriction;
@@ -19,9 +20,11 @@ class Object
     double rotationVelocity;
 
 public:
-    Object(double mass, double restitution, double staticFriction, double dynamicFriction, Shape* shape, bool isStatic);
+    Object(double mass, double inertia, double restitution, double staticFriction, double dynamicFriction, Shape* shape, bool isStatic);
     Vec2& getVelocity();
     Vec2& getPosition();
+    double getRotation();
+    double getRotationVelocity();
     double getRestitution() const;
     double getStaticFriction() const;
     double getDynamicFriction() const;
@@ -30,7 +33,7 @@ public:
     Shape* getShape();
     double& setMass(double& _mass);
     bool& setStatic(bool _isStatic);
-    void push(const Vec2& v);
+    void addVelocity(const Vec2& v);
     void move(const Vec2& v);
     void draw();
 
