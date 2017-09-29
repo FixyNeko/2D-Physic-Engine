@@ -23,9 +23,9 @@ SDL_Window *screen;
 
 Object* addCircle(){
     Circle* circles2 = new Circle(20/2);
-    Object* circle2 = new Object(7854, 0.9, 0.2, 0.1, circles2, false);
+    Object* circle2 = new Object(7854, 50, 0.9, 0.2, 0.1, circles2, false);
     circle2->move(Vec2(20, 200));
-    circle2->push(Vec2(500, 200));
+    circle2->addVelocity(Vec2(500, 200));
     addObject(circle2);
 
     return circle2;
@@ -42,7 +42,7 @@ Object* addPoly(){
     }
 
     Poly* polys = new Poly(vertexs);
-    Object* poly = new Object(7854, 0.4, 3., 0.7, polys, false);
+    Object* poly = new Object(7854, 50,  0.4, 3., 0.7, polys, false);
     poly->move(Vec2(0, 0));
     addObject(poly);
 
@@ -64,7 +64,7 @@ void addFloor(){
         oldHeight = random;
 
         Shape* polys = new Poly(vertexs);
-        Object* poly = new Object(0, 1., 1., 1., polys, false);
+        Object* poly = new Object(0, 0., 1., 1., 1., polys, false);
         poly->move(Vec2(0, -400));
         poly->setStatic(true);
         addObject(poly);
@@ -122,16 +122,16 @@ int main(int argc, char *argv[])
                         addPoly();
                         break;
                     case SDLK_z:
-                        poly->push(Vec2(0,50));
+                        poly->addVelocity(Vec2(0,50));
                         break;
                     case SDLK_s:
-                        poly->push(Vec2(0,-10));
+                        poly->addVelocity(Vec2(0,-10));
                         break;
                     case SDLK_q:
-                        poly->push(Vec2(-10,0));
+                        poly->addVelocity(Vec2(-10,0));
                         break;
                     case SDLK_d:
-                        poly->push(Vec2(10,0));
+                        poly->addVelocity(Vec2(10,0));
                         break;
                 }
                 break;
@@ -180,16 +180,16 @@ void addWindowBoundaries(){
     AABB* horizontals = new AABB(WINDOW_WIDTH + 200, 100);
     AABB* verticals = new AABB(100, WINDOW_HEIGHT + 200);
 
-    Object* top = new Object(0, 10000, 99999., 99999., horizontals, false);
+    Object* top = new Object(0, 0, 10000, 99999., 99999., horizontals, false);
     top->move(Vec2(0, WINDOW_HEIGHT/2 + 0));
     top->setStatic(true);
-    Object* bottom = new Object(0, 10000, 99999., 99999., horizontals, false);
+    Object* bottom = new Object(0, 0, 10000, 99999., 99999., horizontals, false);
     bottom->move(Vec2(0, -WINDOW_HEIGHT/2 - 0));
     bottom->setStatic(true);
-    Object* left = new Object(0, 10000, 99999., 99999., verticals, false);
+    Object* left = new Object(0, 0, 10000, 99999., 99999., verticals, false);
     left->move(Vec2(-WINDOW_WIDTH/2 - 0, 0));
     left->setStatic(true);
-    Object* right = new Object(0, 10000, 99999., 99999., verticals, false);
+    Object* right = new Object(0, 0, 10000, 99999., 99999., verticals, false);
     right->move(Vec2(WINDOW_WIDTH/2 + 0, 0));
     right->setStatic(true);
 
