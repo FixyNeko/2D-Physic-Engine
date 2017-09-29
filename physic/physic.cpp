@@ -10,7 +10,7 @@ std::vector<Object *> scene;
 std::vector<Manifold *> manifolds;
 
 double scale = 10000 / 100;
-double speed = 0.6;
+double speed = 1;
 Vec2 acceleration = Vec2(0, -9.8 * scale);
 
 // AABB 0, CIRCLE 1, POLYGON 2
@@ -19,6 +19,7 @@ static bool (*const collisionResolverArray[3][3])(Manifold *m) =
      {swap, CIRCLEvsCIRCLE, CIRCLEvsPOLYGON},
      {swap, swap, POLYGONvsPOLYGON}};
 
+
 void resolveCollision(Manifold *m)
 {
     Object *A = m->A;
@@ -26,18 +27,34 @@ void resolveCollision(Manifold *m)
     //impulse resolution
     Vec2 rVel = A->getVelocity() - B->getVelocity();
     double normalVelocity = dot(rVel, m->normal);
+    Vec2 tangeant = rVel - (m->normal * normalVelocity);
+    tangeant.normalize();
+    double tangeantVelocity = dot(rVel, tangeant);
 
     if (normalVelocity < 0)
         return;
 
     double e = std::min(A->getRestitution(), B->getRestitution()); //restitution
-    double j = (1 + e) * normalVelocity;                           //impulse scalar
-    j /= A->getInvMass() + B->getInvMass();
+    double jn = (1 + e) * normalVelocity;                          //impulse scalar
+    jn /= A->getInvMass() + B->getInvMass();
+
+    double mu = sqrt(pow(A->getStaticFriction(), 2) + pow(B->getStaticFriction(), 2));
+    double jt = (clamp(0, std::min(A->getStaticFriction(), B->getStaticFriction()), tangeantVelocity) != tangeantVelocity) ?
+                clamp(0, std::min(A->getStaticFriction(), B->getStaticFriction()), tangeantVelocity) :
+                std::min(A->getDynamicFriction(), B->getDynamicFriction());
+    jt /= A->getInvMass() + B->getInvMass();
 
     //Apply impulse
-    Vec2 impulse = m->normal * j;
+    Vec2 impulse = m->normal * jn;
     A->push(-impulse * A->getInvMass());
     B->push(impulse * B->getInvMass());
+    //Apply friction
+    if(abs( jt ) > jn * mu)
+        jt = -jn * sqrt(pow(A->getDynamicFriction(), 2) + pow(B->getDynamicFriction(), 2));
+
+    Vec2 friction = tangeant * jt;
+    A->push(-friction * A->getInvMass());
+    B->push(friction * B->getInvMass());
 }
 
 void positionCorrection(Manifold *m)
@@ -307,17 +324,6 @@ bool POLYGONvsPOLYGON(Manifold *m)
             double moyB = (minB + maxB) / 2;
             m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
         }
-
-        glBegin(GL_LINE_LOOP);
-            glColor3ub(0,255,0);
-            AB/=2;
-            Vec2 center = Apos + *a[i] + AB;
-            Vec2 normal = AB.ortho().normalize();
-            normal *= 25;
-            Vec2 destination = center + (normal);
-            glVertex2d(center.getX(), center.getY());
-            glVertex2d(destination.getX(), destination.getY());
-        glEnd();
     }
 
     //check SAT normal to all axis of B
@@ -378,17 +384,6 @@ bool POLYGONvsPOLYGON(Manifold *m)
             double moyB = (minB + maxB) / 2;
             m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
         }
-
-        glBegin(GL_LINE_LOOP);
-            glColor3ub(0,255,0);
-            AB/=2;
-            Vec2 center = Bpos + *b[i] + AB;
-            Vec2 normal = AB.ortho().normalize();
-            normal *= 25;
-            Vec2 destination = center + (normal);
-            glVertex2d(center.getX(), center.getY());
-            glVertex2d(destination.getX(), destination.getY());
-        glEnd();
     }
     return true; // no separate axis found, colliding, m was updated
 }
@@ -401,11 +396,11 @@ bool swap(Manifold *m)
                                  [m->B->getShape()->getType()](m);
 }
 
-double clamp(double min_extent, double max_extent, double closest)
+double clamp(double mini, double maxi, double value)
 {
-    if (closest > max_extent)
-        return max_extent;
-    if (closest < min_extent)
-        return min_extent;
-    return closest;
+    if (value > maxi)
+        return maxi;
+    if (value < mini)
+        return mini;
+    return value;
 }

@@ -27,7 +27,7 @@ bool CIRCLEvsPOLYGON(Manifold* m);
 bool POLYGONvsPOLYGON(Manifold* m);
 
 bool swap(Manifold* m);
-double clamp( double min_extent, double max_extent, double closest);
+double clamp(double mini, double maxi, double value);
 void addObject(Object* O);
 void removeObject(Object* O);
 

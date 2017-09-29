@@ -23,7 +23,7 @@ SDL_Window *screen;
 
 Object* addCircle(){
     Circle* circles2 = new Circle(20/2);
-    Object* circle2 = new Object(7854, 0.9, circles2, false);
+    Object* circle2 = new Object(7854, 0.9, 0.2, 0.1, circles2, false);
     circle2->move(Vec2(20, 200));
     circle2->push(Vec2(500, 200));
     addObject(circle2);
@@ -33,43 +33,42 @@ Object* addCircle(){
 
 Object* addPoly(){
     std::vector<Vec2*> vertexs;
-    vertexs.push_back(new Vec2(0, 0));
-    vertexs.push_back(new Vec2(-100, 0));
-    vertexs.push_back(new Vec2(-100, -100));
-    vertexs.push_back(new Vec2(100, -100));
+    int vertexN = 12;
+    double radius = 20;
+    for(int i = 0; i < vertexN; i++){
+        Vec2* v = new Vec2(radius, 0);
+        v->rotate(360*i/vertexN);
+        vertexs.push_back(v);
+    }
 
     Poly* polys = new Poly(vertexs);
-    Object* poly = new Object(7854, 0.95, polys, false);
+    Object* poly = new Object(7854, 0.4, 3., 0.7, polys, false);
     poly->move(Vec2(0, 0));
     addObject(poly);
 
     return poly;
 }
 
-Object* addPoly2(){
+void addFloor(){
     std::vector<Vec2*> vertexs;
-    vertexs.push_back(new Vec2(-250, 250));
-    vertexs.push_back(new Vec2(-250, 100));
-    vertexs.push_back(new Vec2(0, 100));
+    double width = WINDOW_WIDTH / 15;
+    double oldHeight = 200;
+    for(int i = 0; i < 15; i++){
+        double random = (i == 14) ? 200 : std::rand() % 30 + 20;
+        vertexs.clear();
+        vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + i*width, 0));
+        vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + (1+i)*width,0));
+        vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + (1+i)*width, random));
+        vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + i*width, oldHeight));
 
-    Poly* polys = new Poly(vertexs);
-    Object* poly = new Object(0, 1, polys, false);
-    poly->move(Vec2(0, -400));
-    poly->setStatic(true);
-    addObject(poly);
+        oldHeight = random;
 
-    vertexs.clear();
-    vertexs.push_back(new Vec2(250, 100));
-    vertexs.push_back(new Vec2(500,250));
-    vertexs.push_back(new Vec2(0, 100));
-
-    polys = new Poly(vertexs);
-    poly = new Object(0, 1, polys, false);
-    poly->move(Vec2(0, -400));
-    poly->setStatic(true);
-    addObject(poly);
-
-    return poly;
+        Shape* polys = new Poly(vertexs);
+        Object* poly = new Object(0, 1., 1., 1., polys, false);
+        poly->move(Vec2(0, -400));
+        poly->setStatic(true);
+        addObject(poly);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -77,10 +76,8 @@ int main(int argc, char *argv[])
     ////////////////////////////////////////////////////////////////////////////////////////////
     //addWindowBoundaries();
 
-    Vec2(10, 0).rotate(-135).print();
-
     Object* poly = addPoly();
-    addPoly2();
+    addFloor();
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     SDL_Event event;
@@ -183,16 +180,16 @@ void addWindowBoundaries(){
     AABB* horizontals = new AABB(WINDOW_WIDTH + 200, 100);
     AABB* verticals = new AABB(100, WINDOW_HEIGHT + 200);
 
-    Object* top = new Object(0, 10000, horizontals, false);
+    Object* top = new Object(0, 10000, 99999., 99999., horizontals, false);
     top->move(Vec2(0, WINDOW_HEIGHT/2 + 0));
     top->setStatic(true);
-    Object* bottom = new Object(0, 10000, horizontals, false);
+    Object* bottom = new Object(0, 10000, 99999., 99999., horizontals, false);
     bottom->move(Vec2(0, -WINDOW_HEIGHT/2 - 0));
     bottom->setStatic(true);
-    Object* left = new Object(0, 10000, verticals, false);
+    Object* left = new Object(0, 10000, 99999., 99999., verticals, false);
     left->move(Vec2(-WINDOW_WIDTH/2 - 0, 0));
     left->setStatic(true);
-    Object* right = new Object(0, 10000, verticals, false);
+    Object* right = new Object(0, 10000, 99999., 99999., verticals, false);
     right->move(Vec2(WINDOW_WIDTH/2 + 0, 0));
     right->setStatic(true);
 

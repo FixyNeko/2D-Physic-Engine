@@ -34,7 +34,7 @@ Vec2 Vec2::operator+(Vec2& v){
     return Vec2(x + v.getX(), y + v.getY());
 }
 
-Vec2 Vec2::operator-(Vec2& v){
+Vec2 Vec2::operator-(const Vec2& v){
     return Vec2(x - v.getX(), y - v.getY());
 }
 
@@ -136,6 +136,12 @@ double dot(Vec2& v1, Vec2& v2) {
 }
 double cross(Vec2& v1, Vec2& v2) {
     return (v1.getX() * v2.getY()) - (v1.getY() * v2.getX());
+}
+Vec2 cross(Vec2& v, double s) {
+    return (v.getY() * s, v.getX() * (-s));
+}
+Vec2 cross(double s, Vec2& v) {
+    return (v.getY() * (-s), v.getX() * s);
 }
 
 void Vec2::print() const{

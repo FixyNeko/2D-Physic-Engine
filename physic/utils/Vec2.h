@@ -16,7 +16,7 @@ public:
     Vec2& setY(double y);
     Vec2& operator=(const Vec2& v);
     Vec2 operator+(Vec2& v);
-    Vec2 operator-(Vec2& v);
+    Vec2 operator-(const Vec2& v);
     Vec2& operator+=(Vec2& v);
     Vec2& operator-=(Vec2& v);
     Vec2 operator+(double m);
@@ -39,5 +39,7 @@ public:
 
 double dot(Vec2& v1, Vec2& v2);
 double cross(Vec2& v1, Vec2& v2);
+Vec2 cross(Vec2& v, double s);
+Vec2 cross(double s, Vec2& v);
 
 #endif

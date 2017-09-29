@@ -9,6 +9,8 @@ class Object
     double mass;
     double invMass;
     double restitution;
+    double staticFriction;
+    double dynamicFriction;
     Shape* shape;
     bool isStatic;
     Vec2 position;
@@ -17,10 +19,12 @@ class Object
     double rotationVelocity;
 
 public:
-    Object(double mass, double restitution, Shape* shape, bool isStatic);
+    Object(double mass, double restitution, double staticFriction, double dynamicFriction, Shape* shape, bool isStatic);
     Vec2& getVelocity();
     Vec2& getPosition();
     double getRestitution() const;
+    double getStaticFriction() const;
+    double getDynamicFriction() const;
     double getMass() const;
     double getInvMass() const;
     Shape* getShape();

@@ -2,8 +2,8 @@
 #include <iostream>
 #include <GL/gl.h>
 
-Object::Object(double _mass, double _restitution, Shape* _shape, bool _isStatic):
-    restitution(_restitution), shape(_shape), isStatic(_isStatic){
+Object::Object(double _mass, double _restitution, double _staticFriction, double _dynamicFriction, Shape* _shape, bool _isStatic):
+    restitution(_restitution), staticFriction(_staticFriction), dynamicFriction(_dynamicFriction), shape(_shape), isStatic(_isStatic){
         this->setMass(_mass);
         position = velocity = Vec2();
         rotation = rotationVelocity = 0;
@@ -19,6 +19,13 @@ Vec2& Object::getPosition(){
 
 double Object::getRestitution() const{
     return restitution;
+}
+
+double Object::getStaticFriction() const{
+    return staticFriction;
+}
+double Object::getDynamicFriction() const{
+    return dynamicFriction;
 }
 
 double Object::getMass() const{
