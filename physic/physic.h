@@ -12,6 +12,7 @@ struct Manifold
 {
     Object* A;
     Object* B;
+    Vec2 contactPosition;
     double penetrationDepth;
     Vec2 normal;
 };

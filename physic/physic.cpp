@@ -46,15 +46,15 @@ void resolveCollision(Manifold *m)
 
     //Apply impulse
     Vec2 impulse = m->normal * jn;
-    A->push(-impulse * A->getInvMass());
-    B->push(impulse * B->getInvMass());
+    A->addVelocity(-impulse * A->getInvMass());
+    B->addVelocity(impulse * B->getInvMass());
     //Apply friction
     if(abs( jt ) > jn * mu)
         jt = -jn * sqrt(pow(A->getDynamicFriction(), 2) + pow(B->getDynamicFriction(), 2));
 
     Vec2 friction = tangeant * jt;
-    A->push(-friction * A->getInvMass());
-    B->push(friction * B->getInvMass());
+    A->addVelocity(-friction * A->getInvMass());
+    B->addVelocity(friction * B->getInvMass());
 }
 
 void positionCorrection(Manifold *m)
@@ -99,7 +99,7 @@ void update(int dt)
     double dts = ((double)dt) * speed / 1000;
     for (int i = 0; i < scene.size(); i++)
     {
-        scene[i]->push(acceleration * dts);
+        scene[i]->addVelocity(acceleration * dts);
         scene[i]->move(scene[i]->getVelocity() * dts);
     }
     
@@ -268,7 +268,6 @@ bool POLYGONvsPOLYGON(Manifold *m)
     //check SAT normal to all axis of A
     for (int i = 0; i < a.size(); i++)
     {
-
         Vec2 AB = *a[(i + 1) % a.size()] - *a[i];
         double angle = 0; // used to rotate all vertexs, in order project on x axis
         if (AB.getY() < 0)
@@ -317,12 +316,39 @@ bool POLYGONvsPOLYGON(Manifold *m)
         if (overlap < 0)
             return false; // this axis separates the polygons, not touching
 
-        if (overlap < m->penetrationDepth)
+        if (overlap < m->penetrationDepth) // we found a new minimum axis of penetration, so it's this new point which is coliding
         {
-            m->penetrationDepth = overlap; // searching least axis of penetration
+            m->penetrationDepth = overlap;
             double moyA = (minA + maxA) / 2;
             double moyB = (minB + maxB) / 2;
             m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
+            
+            Vec2 min = *b[0];
+            Vec2 minCopy = min;
+            minCopy.rotate(-angle); // reduce calculs when no new min
+            // brute searching the minimum x point for collision coordinates
+            for(int j = 1; j < b.size(); j++){ // point colliding is on B, since it collide into A line 
+                Vec2 v = *b[j];
+                v.rotate(-angle);
+                if(moyA < moyB){ // depending of the side b is hitting, we need maxX or minX
+                    if(v.getX() < minCopy.getX()){
+                        min = *b[j];
+                        minCopy = min;
+                        minCopy.rotate(-angle);
+                    }
+                }
+                else{
+                    if(v.getX() > minCopy.getX()){
+                        min = *b[j];
+                        minCopy = min;
+                        minCopy.rotate(-angle);
+                    }
+                }
+            }
+
+            min.rotate(B->getRotation()); // coordinates from B shape relative to world relative
+            min += B->getPosition();
+            m->contactPosition = min;
         }
     }
 
@@ -383,6 +409,33 @@ bool POLYGONvsPOLYGON(Manifold *m)
             double moyA = (minA + maxA) / 2;
             double moyB = (minB + maxB) / 2;
             m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
+
+            Vec2 min = *a[0];
+            Vec2 minCopy = min;
+            minCopy.rotate(-angle); // reduce calculs when no new min
+            // brute searching the minimum x point for collision coordinates
+            for(int j = 1; j < a.size(); j++){ // point colliding is on A, since it collide into B line 
+                Vec2 v = *a[j];
+                v.rotate(-angle);
+                if(moyA < moyB){ // depending of the side a is hitting, we need maxX or minX
+                    if(v.getX() < minCopy.getX()){
+                        min = *a[j];
+                        minCopy = min;
+                        minCopy.rotate(-angle);
+                    }
+                }
+                else{
+                    if(v.getX() > minCopy.getX()){
+                        min = *a[j];
+                        minCopy = min;
+                        minCopy.rotate(-angle);
+                    }
+                }
+            }
+
+            min.rotate(A->getRotation()); // coordinates from A shape relative to world relative
+            min += A->getPosition();
+            m->contactPosition = min;
         }
     }
     return true; // no separate axis found, colliding, m was updated
