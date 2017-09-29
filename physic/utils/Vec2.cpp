@@ -138,10 +138,10 @@ double cross(Vec2& v1, Vec2& v2) {
     return (v1.getX() * v2.getY()) - (v1.getY() * v2.getX());
 }
 Vec2 cross(Vec2& v, double s) {
-    return (v.getY() * s, v.getX() * (-s));
+    return Vec2(v.getY() * s, v.getX() * (-s));
 }
 Vec2 cross(double s, Vec2& v) {
-    return (v.getY() * (-s), v.getX() * s);
+    return Vec2(v.getY() * (-s), v.getX() * s);
 }
 
 void Vec2::print() const{
