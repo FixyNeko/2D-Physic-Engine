@@ -23,7 +23,7 @@ static bool (*const collisionResolverArray[3][3])(Manifold *m) =
 void resolveCollision(Manifold *m)
 {
     glEnable(GL_POINT_SIZE);
-    glPointSize(10);
+    glPointSize(5);
     glBegin(GL_POINTS);
         glColor3ub(0,255,0);
         glVertex2d(m->contactPosition.getX(), m->contactPosition.getY());

@@ -13,15 +13,12 @@ int Poly::getType() const{
 }
 
 void Poly::draw() const{
-    double steps = vertexs.size() - 1;
     glBegin(GL_LINE_STRIP);
     glColor3ub(255,255,255);
+    glVertex2d(0,0);
         for(int i = 0; i < vertexs.size(); i++){
             glVertex2d(vertexs[i]->getX(), vertexs[i]->getY());
-            glColor3ub(255,255-255/steps*i,255-255/steps*i);
-            glVertex2d(vertexs[i]->getX(), vertexs[i]->getY());
         }
-        glColor3ub(255,0,0);
         glVertex2d(vertexs[0]->getX(), vertexs[0]->getY());
     glEnd();
 }

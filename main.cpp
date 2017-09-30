@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <cstdint>
+#include <time.h>
 #include "main.h"
 #include "physic/utils/Vec2.h"
 #include "physic/object/shapes/AABB.h"
@@ -33,7 +34,7 @@ Object* addCircle(){
 
 Object* addPoly(){
     std::vector<Vec2*> vertexs;
-    int vertexN = 12;
+    int vertexN = 8;
     double radius = 20;
     for(int i = 0; i < vertexN; i++){
         Vec2* v = new Vec2(radius, 0);
@@ -46,7 +47,7 @@ Object* addPoly(){
     vertexs.push_back(new Vec2(200, 10));
 */
     Poly* polys = new Poly(vertexs);
-    Object* poly = new Object(7854, 7854*(radius*radius)/2,  0.05, 1000., 700., polys, false);
+    Object* poly = new Object(10000000, 0.1,  0.05, 300., 100., polys, false);
     poly->move(Vec2(0, -300));
     addObject(poly);
 
@@ -54,18 +55,22 @@ Object* addPoly(){
 }
 
 void addFloor(){
+    std::vector<double> heightGen;
     std::vector<Vec2*> vertexs;
     double width = WINDOW_WIDTH / 15;
-    double oldHeight = 200;
+    srand(time(NULL)); // random initialisation
+
+    for(int i = 0-1; i <= 14+1; i++){
+        double random = (i == 0-1 || i == 14+1) ? WINDOW_HEIGHT : std::rand() % 50 + 20;
+        heightGen.push_back(random);
+    }
+
     for(int i = 0; i < 15; i++){
-        double random = (i == 14) ? 200 : std::rand() % 30 + 20;
         vertexs.clear();
         vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + i*width, 0));
         vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + (1+i)*width,0));
-        vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + (1+i)*width, random));
-        vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + i*width, oldHeight));
-
-        oldHeight = random;
+        vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + (1+i)*width, heightGen[i+1]/2 + heightGen[i+2]/2));
+        vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + i*width, heightGen[i]/2 + heightGen[i+1]/2));
 
         Shape* polys = new Poly(vertexs);
         Object* poly = new Object(0, 0., 1., 1., 1., polys, false);
@@ -132,10 +137,10 @@ int main(int argc, char *argv[])
                         poly->addVelocity(Vec2(0,-10));
                         break;
                     case SDLK_q:
-                        poly->addVelocity(Vec2(-10,0));
+                        poly->addRotationVelocity(5);
                         break;
                     case SDLK_d:
-                        poly->addVelocity(Vec2(10,0));
+                        poly->addRotationVelocity(-5);
                         break;
                 }
                 break;

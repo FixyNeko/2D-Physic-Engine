@@ -5,7 +5,30 @@
 Object::Object(double _mass, double _inertia, double _restitution, double _staticFriction, double _dynamicFriction, Shape* _shape, bool _isStatic):
     restitution(_restitution), staticFriction(_staticFriction), dynamicFriction(_dynamicFriction), shape(_shape), isStatic(_isStatic){
         this->setMass(_mass);
-        this->setInertia(_inertia);
+
+        switch(shape->getType()){
+            case _POLYGON:
+                {
+                    Poly* s = (Poly*) _shape;
+                    std::vector<Vec2*> vertexs = s->getVertexs();
+                    double sum = 0;
+                    double divider = 0;
+                    for(int i = 0; i < vertexs.size(); i++){
+                        Vec2 v1 = *vertexs[i];
+                        Vec2 v2 = *vertexs[(i+1) % vertexs.size()];
+                        sum += std::abs(cross(v1, v2)) * (dot(v1, v1) + dot(v1, v2) + dot(v2, v2));
+
+                        divider += std::abs(cross(v2, v1));
+                    }
+                    double i = _mass/6.*sum/divider;
+                    this->setInertia(i); // in this case inertia is just density
+                }
+                break;
+            
+            default:
+                this->setInertia(_inertia);
+                break;
+        }
 
         position = velocity = Vec2();
         rotation = rotationVelocity = 0;

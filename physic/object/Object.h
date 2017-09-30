@@ -2,8 +2,10 @@
 #define DEF_OBJECT
 
 #include "shapes/Shape.h"
+#include "shapes/Polygon.h"
 #include "../utils/Vec2.h"
 #include <cmath>
+#include <vector>
 
 class Object
 {
