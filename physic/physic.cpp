@@ -10,7 +10,7 @@ std::vector<Object *> scene;
 std::vector<Manifold *> manifolds;
 
 double scale = 10000 / 100;
-double speed = 1;
+double speed = 0.7;
 Vec2 acceleration = Vec2(0, -9.8 * scale);
 
 // AABB 0, CIRCLE 1, POLYGON 2
@@ -22,10 +22,21 @@ static bool (*const collisionResolverArray[3][3])(Manifold *m) =
 
 void resolveCollision(Manifold *m)
 {
+    glEnable(GL_POINT_SIZE);
+    glPointSize(10);
+    glBegin(GL_POINTS);
+        glColor3ub(0,255,0);
+        glVertex2d(m->contactPosition.getX(), m->contactPosition.getY());
+    glEnd();
+
     Object *A = m->A;
     Object *B = m->B;
     //impulse resolution
-    Vec2 rVel = A->getVelocity() - B->getVelocity();
+    Vec2 ArotationVelPos = m->contactPosition - A->getPosition();
+    Vec2 BrotationVelPos = m->contactPosition - B->getPosition();
+    Vec2 ArotationVel = cross(A->getRotationVelocity(), ArotationVelPos);
+    Vec2 BrotationVel = cross(B->getRotationVelocity(), BrotationVelPos);
+    Vec2 rVel = A->getVelocity() + ArotationVel - B->getVelocity() - BrotationVel;
     double normalVelocity = dot(rVel, m->normal);
     Vec2 tangeant = rVel - (m->normal * normalVelocity);
     tangeant.normalize();
@@ -36,13 +47,13 @@ void resolveCollision(Manifold *m)
 
     double e = std::min(A->getRestitution(), B->getRestitution()); //restitution
     double jn = (1 + e) * normalVelocity;                          //impulse scalar
-    jn /= A->getInvMass() + B->getInvMass();
+    jn /= A->getInvMass() + B->getInvMass() + pow(cross(ArotationVelPos, m->normal), 2) * A->getInvInertia() + pow(cross(BrotationVelPos, m->normal), 2) * B->getInvInertia();
 
     double mu = sqrt(pow(A->getStaticFriction(), 2) + pow(B->getStaticFriction(), 2));
-    double jt = (clamp(0, std::min(A->getStaticFriction(), B->getStaticFriction()), tangeantVelocity) != tangeantVelocity) ?
-                clamp(0, std::min(A->getStaticFriction(), B->getStaticFriction()), tangeantVelocity) :
-                std::min(A->getDynamicFriction(), B->getDynamicFriction());
-    jt /= A->getInvMass() + B->getInvMass();
+    double jt = (clamp(0, mu, tangeantVelocity) == tangeantVelocity) ?
+                clamp(0, mu, tangeantVelocity) :
+                sqrt(pow(A->getDynamicFriction(), 2) + pow(B->getDynamicFriction(), 2));
+    jt /= A->getInvMass() + B->getInvMass() + pow(cross(ArotationVelPos, tangeant), 2) * A->getInvInertia() + pow(cross(BrotationVelPos, tangeant), 2) * B->getInvInertia();
 
     //Apply impulse
     Vec2 impulse = m->normal * jn;
@@ -55,13 +66,20 @@ void resolveCollision(Manifold *m)
     Vec2 friction = tangeant * jt;
     A->addVelocity(-friction * A->getInvMass());
     B->addVelocity(friction * B->getInvMass());
+    //apply rotation
+    A->addRotationVelocity(cross(ArotationVelPos, impulse) * -A->getInvInertia());
+    B->addRotationVelocity(cross(BrotationVelPos, impulse) * B->getInvInertia());
+
+    // rotation with friction vector, test
+    A->addRotationVelocity(cross(ArotationVelPos, friction) * -A->getInvInertia());
+    B->addRotationVelocity(cross(BrotationVelPos, friction) * B->getInvInertia());
 }
 
 void positionCorrection(Manifold *m)
 {
     Object *A = m->A;
     Object *B = m->B;
-    const float percent = 0.2;  // Usually 20% - 80%
+    const float percent = 1;  // Usually 20% - 80%
     const float treshold = 0.1; // Usually 0.01 to 0.1 //counted in units, the biger your objects/gravity, the bigger this value
     if (m->penetrationDepth < treshold)
         return;
@@ -101,6 +119,8 @@ void update(int dt)
     {
         scene[i]->addVelocity(acceleration * dts);
         scene[i]->move(scene[i]->getVelocity() * dts);
+
+        scene[i]->addRotation(scene[i]->getRotationVelocity() * dts);
     }
     
     for (int i = 0; i < manifolds.size(); i++)
@@ -109,7 +129,7 @@ void update(int dt)
         Shape *a = m->A->getShape();
         Shape *b = m->B->getShape();
 
-        if (collisionResolverArray[a->getType()][b->getType()](m))
+        if (!(m->A->getStatic() && m->B->getStatic()) && collisionResolverArray[a->getType()][b->getType()](m))
         {
             resolveCollision(m);
             positionCorrection(m);
@@ -283,30 +303,39 @@ bool POLYGONvsPOLYGON(Manifold *m)
             angle = (AB.getX() < 0) ? 180 : 0;
         }
         angle -= 90.; // because we project on a normal line to every side
+        angle += A->getRotation() * 180 / M_PI;
         
 
         Vec2 Apos = A->getPosition();
         Vec2 Bpos = B->getPosition();
 
-        Vec2 v = (*a[0] + Apos);
+        Vec2 v = *a[0];
+        v.rotate(A->getRotation() * 180 / M_PI);
+        v += Apos;
         v.rotate(-angle);
         double maxA = v.getX();
         double minA = maxA;
         for (int j = 1; j < a.size(); j++)
         {
-            v = (*a[j] + Apos); // rotate every vertex to project on x axis, -angle to go fom cur. pos to axis (angle is from axis)
+            v = *a[j]; // rotate every vertex to project on x axis, -angle to go fom cur. pos to axis (angle is from axis)
+            v.rotate(A->getRotation() * 180 / M_PI);
+            v += Apos;
             v.rotate(-angle);
             minA = (v.getX() < minA) ? v.getX() : minA;
             maxA = (v.getX() > maxA) ? v.getX() : maxA;
         }
 
-        v = (*b[0] + Bpos);
+        v = *b[0];
+        v.rotate(B->getRotation() * 180 / M_PI);
+        v += Bpos;
         v.rotate(-angle);
         double maxB = v.getX();
         double minB = maxB;
         for (int j = 1; j < b.size(); j++)
         {
-            v = (*b[j] + Bpos);
+            v = *b[j];
+            v.rotate(B->getRotation() * 180 / M_PI);
+            v += Bpos;
             v.rotate(-angle);
             minB = (v.getX() < minB) ? v.getX() : minB;
             maxB = (v.getX() > maxB) ? v.getX() : maxB;
@@ -324,15 +353,18 @@ bool POLYGONvsPOLYGON(Manifold *m)
             m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
             
             Vec2 min = *b[0];
+            min.rotate(B->getRotation() * 180 / M_PI);
             Vec2 minCopy = min;
             minCopy.rotate(-angle); // reduce calculs when no new min
             // brute searching the minimum x point for collision coordinates
             for(int j = 1; j < b.size(); j++){ // point colliding is on B, since it collide into A line 
                 Vec2 v = *b[j];
+                v.rotate(B->getRotation() * 180 / M_PI);
                 v.rotate(-angle);
                 if(moyA < moyB){ // depending of the side b is hitting, we need maxX or minX
                     if(v.getX() < minCopy.getX()){
                         min = *b[j];
+                        min.rotate(B->getRotation() * 180 / M_PI);
                         minCopy = min;
                         minCopy.rotate(-angle);
                     }
@@ -340,13 +372,14 @@ bool POLYGONvsPOLYGON(Manifold *m)
                 else{
                     if(v.getX() > minCopy.getX()){
                         min = *b[j];
+                        min.rotate(B->getRotation() * 180 / M_PI);
                         minCopy = min;
                         minCopy.rotate(-angle);
                     }
                 }
             }
 
-            min.rotate(B->getRotation()); // coordinates from B shape relative to world relative
+//            min.rotate(B->getRotation() * 180 / M_PI); // coordinates from B shape relative to world relative
             min += B->getPosition();
             m->contactPosition = min;
         }
@@ -370,29 +403,38 @@ bool POLYGONvsPOLYGON(Manifold *m)
             angle = (AB.getX() < 0) ? 180 : 0;
         }
         angle -= 90.; // because we project on a normal line to every side
+        angle += B->getRotation() * 180 / M_PI;
 
         Vec2 Apos = A->getPosition();
         Vec2 Bpos = B->getPosition();
 
-        Vec2 v = (*a[0] + Apos);
+        Vec2 v = *a[0];
+        v.rotate(A->getRotation() * 180 / M_PI);
+        v += Apos;
         v.rotate(-angle);
         double maxA = v.getX();
         double minA = maxA;
         for (int j = 1; j < a.size(); j++)
         {
-            v = (*a[j] + Apos); // rotate every vertex to project on x axis, -angle to go fom cur. pos to axis (angle is from axis)
+            v = *a[j]; // rotate every vertex to project on x axis, -angle to go fom cur. pos to axis (angle is from axis)
+            v.rotate(A->getRotation() * 180 / M_PI);
+            v += Apos;
             v.rotate(-angle);
             minA = (v.getX() < minA) ? v.getX() : minA;
             maxA = (v.getX() > maxA) ? v.getX() : maxA;
         }
 
-        v = (*b[0] + Bpos);
+        v = *b[0];
+        v.rotate(B->getRotation() * 180 / M_PI);
+        v += Bpos;
         v.rotate(-angle);
         double maxB = v.getX();
         double minB = maxB;
         for (int j = 1; j < b.size(); j++)
         {
-            v = (*b[j] + Bpos);
+            v = *b[j];
+            v.rotate(B->getRotation() * 180 / M_PI);
+            v += Bpos;
             v.rotate(-angle);
             minB = (v.getX() < minB) ? v.getX() : minB;
             maxB = (v.getX() > maxB) ? v.getX() : maxB;
@@ -411,15 +453,18 @@ bool POLYGONvsPOLYGON(Manifold *m)
             m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
 
             Vec2 min = *a[0];
+            min.rotate(A->getRotation() * 180 / M_PI);
             Vec2 minCopy = min;
             minCopy.rotate(-angle); // reduce calculs when no new min
             // brute searching the minimum x point for collision coordinates
             for(int j = 1; j < a.size(); j++){ // point colliding is on A, since it collide into B line 
                 Vec2 v = *a[j];
+                v.rotate(A->getRotation() * 180 / M_PI);
                 v.rotate(-angle);
-                if(moyA < moyB){ // depending of the side a is hitting, we need maxX or minX
+                if(moyA > moyB){ // depending of the side a is hitting, we need maxX or minX
                     if(v.getX() < minCopy.getX()){
                         min = *a[j];
+                        min.rotate(A->getRotation() * 180 / M_PI);
                         minCopy = min;
                         minCopy.rotate(-angle);
                     }
@@ -427,13 +472,14 @@ bool POLYGONvsPOLYGON(Manifold *m)
                 else{
                     if(v.getX() > minCopy.getX()){
                         min = *a[j];
+                        min.rotate(A->getRotation() * 180 / M_PI);
                         minCopy = min;
                         minCopy.rotate(-angle);
                     }
                 }
             }
 
-            min.rotate(A->getRotation()); // coordinates from A shape relative to world relative
+//            min.rotate(A->getRotation() * 180 / M_PI); // coordinates from A shape relative to world relative
             min += A->getPosition();
             m->contactPosition = min;
         }

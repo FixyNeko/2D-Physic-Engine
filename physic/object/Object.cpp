@@ -3,8 +3,9 @@
 #include <GL/gl.h>
 
 Object::Object(double _mass, double _inertia, double _restitution, double _staticFriction, double _dynamicFriction, Shape* _shape, bool _isStatic):
-    inertia(_inertia), restitution(_restitution), staticFriction(_staticFriction), dynamicFriction(_dynamicFriction), shape(_shape), isStatic(_isStatic){
+    restitution(_restitution), staticFriction(_staticFriction), dynamicFriction(_dynamicFriction), shape(_shape), isStatic(_isStatic){
         this->setMass(_mass);
+        this->setInertia(_inertia);
 
         position = velocity = Vec2();
         rotation = rotationVelocity = 0;
@@ -45,6 +46,10 @@ double Object::getInvMass() const{
     return invMass;
 }
 
+double Object::getInvInertia() const{
+    return invInertia;
+}
+
 Shape* Object::getShape(){
     return shape;
 }
@@ -58,8 +63,21 @@ double& Object::setMass(double& _mass){
     return mass;
 }
 
+double& Object::setInertia(double& _inertia){
+    inertia = _inertia;
+    if( _inertia == 0)
+        invInertia = 0;
+    else
+        invInertia = 1/_inertia;
+    return inertia;
+}
+
 bool& Object::setStatic(bool _isStatic){
     isStatic = _isStatic;
+    return isStatic;
+}
+
+bool& Object::getStatic(){
     return isStatic;
 }
 
@@ -75,10 +93,20 @@ void Object::move(const Vec2& v){
     position += w;
 }
 
+void Object::addRotationVelocity(double r){
+    if(isStatic) return;
+    rotationVelocity += r;
+}
+
+void Object::addRotation(double r){
+    if(isStatic) return;
+    rotation += r;
+}
+
 void Object::draw(){
     glPushMatrix();
     glTranslated(position.getX(), position.getY(), 0);
-    glRotated(rotation, 0, 0, 1);
+    glRotated(rotation * 180 / M_PI, 0, 0, 1);
     shape->draw();
     glPopMatrix();
 }

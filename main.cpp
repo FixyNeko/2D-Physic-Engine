@@ -40,10 +40,14 @@ Object* addPoly(){
         v->rotate(360*i/vertexN);
         vertexs.push_back(v);
     }
-
+/*    vertexs.push_back(new Vec2(-200, 10));
+    vertexs.push_back(new Vec2(-200, -10));
+    vertexs.push_back(new Vec2(200, -10));
+    vertexs.push_back(new Vec2(200, 10));
+*/
     Poly* polys = new Poly(vertexs);
-    Object* poly = new Object(7854, 50,  0.4, 3., 0.7, polys, false);
-    poly->move(Vec2(0, 0));
+    Object* poly = new Object(7854, 7854*(radius*radius)/2,  0.05, 1000., 700., polys, false);
+    poly->move(Vec2(0, -300));
     addObject(poly);
 
     return poly;
@@ -76,8 +80,8 @@ int main(int argc, char *argv[])
     ////////////////////////////////////////////////////////////////////////////////////////////
     //addWindowBoundaries();
 
-    Object* poly = addPoly();
     addFloor();
+    Object* poly = addPoly();
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     SDL_Event event;
