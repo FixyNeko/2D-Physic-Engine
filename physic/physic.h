@@ -26,8 +26,10 @@ bool AABBvsPOLYGON(Manifold* m);
 bool CIRCLEvsCIRCLE(Manifold* m);
 bool CIRCLEvsPOLYGON(Manifold* m);
 bool POLYGONvsPOLYGON(Manifold* m);
-
 bool swap(Manifold* m);
+
+bool broadPhase(Manifold* m);
+
 double clamp(double mini, double maxi, double value);
 void addObject(Object* O);
 void removeObject(Object* O);

@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <vector>
 #include <GL/gl.h>
+#include <SDL2/SDL.h>
 
 std::vector<Object *> scene;
 std::vector<Manifold *> manifolds;
@@ -114,6 +115,8 @@ void draw()
 
 void update(int dt)
 {
+    int startTime = SDL_GetTicks();
+
     double dts = ((double)dt) * speed / 1000;
     for (int i = 0; i < scene.size(); i++)
     {
@@ -129,7 +132,7 @@ void update(int dt)
         Shape *a = m->A->getShape();
         Shape *b = m->B->getShape();
 
-        if (!(m->A->getStatic() && m->B->getStatic()) && collisionResolverArray[a->getType()][b->getType()](m))
+        if (!(m->A->getStatic() && m->B->getStatic()) && broadPhase(m) && collisionResolverArray[a->getType()][b->getType()](m))
         {
             resolveCollision(m);
             positionCorrection(m);
@@ -250,7 +253,9 @@ bool CIRCLEvsCIRCLE(Manifold *m)
     Object *B = m->B;
     Circle *a = (Circle *)A->getShape();
     Circle *b = (Circle *)B->getShape();
-    Vec2 n = B->getPosition() - A->getPosition(); // from A to B
+    Vec2 aPos = a->getPosition();
+    Vec2 bPos = b->getPosition();
+    Vec2 n = B->getPosition() + bPos - A->getPosition() - aPos; // from A to B
 
     float r = a->getRadius() + b->getRadius();
 
@@ -263,6 +268,7 @@ bool CIRCLEvsCIRCLE(Manifold *m)
     {
         m->penetrationDepth = r - d;
         m->normal = n / d; //d is n length, return a unit vector
+        m->contactPosition = n / d * a->getRadius() + A->getPosition();
     }
     else
     {
@@ -273,7 +279,76 @@ bool CIRCLEvsCIRCLE(Manifold *m)
 }
 bool CIRCLEvsPOLYGON(Manifold *m)
 {
-    return false;
+    Object* A = m->A;
+    Object* B = m->B;
+    Circle* circleShape = (Circle*) A->getShape();
+    Poly* polyShape = (Poly*) B->getShape();
+    std::vector<Vec2 *> vertexs = polyShape->getVertexs();
+
+    m->penetrationDepth = 99999999999999999999999999999999999.;
+
+    for (int i = 0; i < vertexs.size(); i++)
+    {
+        Vec2 AB = *vertexs[(i + 1) % vertexs.size()] - *vertexs[i];
+        double angle = 0; // used to rotate all vertexs, in order project on x axis
+        if (AB.getY() < 0)
+        {
+            angle = -std::acos(AB.getX() / AB.length()) * 180 / M_PI;
+        }
+        else if (AB.getY() > 0)
+        {
+            angle = std::acos(AB.getX() / AB.length()) * 180 / M_PI;
+        }
+        else
+        {
+            angle = (AB.getX() < 0) ? 180 : 0;
+        }
+        angle -= 90.; // because we project on a normal line to every side
+        angle += B->getRotation() * 180 / M_PI;
+        
+        Vec2 Bpos = B->getPosition();
+
+        Vec2 v = *vertexs[0];
+        v.rotate(B->getRotation() * 180 / M_PI);
+        v += Bpos;
+        v.rotate(-angle);
+        double maxB = v.getX();
+        double minB = maxB;
+        for (int j = 1; j < vertexs.size(); j++)
+        {
+            v = *vertexs[j]; // rotate every vertex to project on x axis, -angle to go fom cur. pos to axis (angle is from axis)
+            v.rotate(B->getRotation() * 180 / M_PI);
+            v += Bpos;
+            v.rotate(-angle);
+            minB = (v.getX() < minB) ? v.getX() : minB;
+            maxB = (v.getX() > maxB) ? v.getX() : maxB;
+        }
+
+        Vec2 circlePos = circleShape->getPosition();
+        circlePos.rotate(A->getRotation() * 180 / M_PI);
+        circlePos += A->getPosition();
+        circlePos.rotate(-angle);
+        double maxA = circlePos.getX() + circleShape->getRadius();
+        double minA = maxA - 2 * circleShape->getRadius();
+
+        double overlap = std::min(maxA, maxB) - std::max(minA, minB);
+        if (overlap < 0)
+            return false; // this axis separates the polygons, not touching
+
+        if (overlap < m->penetrationDepth) // we found a new minimum axis of penetration, so it's this new point which is coliding
+        {
+            m->penetrationDepth = overlap;
+            double moyA = circlePos.getX();
+            double moyB = (minB + maxB) / 2;
+            m->normal = Vec2(1, 0).rotate( (moyA < moyB)? angle : angle + 180 ); // normal to the line, depends of relative position of objects
+            
+            // contact position is the Y coord of the circle, since the edge colliding is vertical
+            Vec2 contact = circlePos.rotate(angle);
+            Vec2 a = m->normal * circleShape->getRadius();
+            contact += a;
+            m->contactPosition = contact;
+        }
+    }
 }
 bool POLYGONvsPOLYGON(Manifold *m)
 {
@@ -379,7 +454,6 @@ bool POLYGONvsPOLYGON(Manifold *m)
                 }
             }
 
-//            min.rotate(B->getRotation() * 180 / M_PI); // coordinates from B shape relative to world relative
             min += B->getPosition();
             m->contactPosition = min;
         }
@@ -479,7 +553,6 @@ bool POLYGONvsPOLYGON(Manifold *m)
                 }
             }
 
-//            min.rotate(A->getRotation() * 180 / M_PI); // coordinates from A shape relative to world relative
             min += A->getPosition();
             m->contactPosition = min;
         }
@@ -493,6 +566,24 @@ bool swap(Manifold *m)
     m->B = A;
     return collisionResolverArray[m->A->getShape()->getType()]
                                  [m->B->getShape()->getType()](m);
+}
+
+bool broadPhase(Manifold* m){
+    Shape* Ashape = m->A->getShape();
+    Shape* Bshape = m->B->getShape();
+
+    m->A->setShape(m->A->getBroad());
+    m->B->setShape(m->B->getBroad());
+
+    bool broadPhasePassed = true;
+
+    if(!collisionResolverArray[m->A->getShape()->getType()][m->B->getShape()->getType()](m))
+        broadPhasePassed = false;
+
+    m->A->setShape(Ashape);
+    m->B->setShape(Bshape);
+
+    return broadPhasePassed;
 }
 
 double clamp(double mini, double maxi, double value)
