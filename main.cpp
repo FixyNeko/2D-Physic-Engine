@@ -15,11 +15,10 @@
 #define WINDOW_HEIGHT 1000
 
 int msaa = 16;
-double fpsLimit = 240;
 
 double angleX = 0, angleZ = 0;
 
-unsigned int last_time, current_time, ellapsed_time, start_time;
+unsigned int lastTime, currentTime;
 SDL_Window *screen;
 
 Object* addCircle(){
@@ -105,7 +104,7 @@ int main(int argc, char *argv[])
     glLoadIdentity();
     gluOrtho2D(-WINDOW_WIDTH/2, WINDOW_WIDTH/2, -WINDOW_HEIGHT/2, WINDOW_HEIGHT/2);
 
-    last_time = SDL_GetTicks();
+    lastTime = SDL_GetTicks();
 
     for (;;)
     {
@@ -140,17 +139,11 @@ int main(int argc, char *argv[])
                 break;
         }
 
-        current_time = SDL_GetTicks();
-        ellapsed_time = current_time - last_time;
-        last_time = current_time;
+        lastTime = currentTime;
+        currentTime = SDL_GetTicks();
 
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        physic::update(std::min(10, (int) ellapsed_time)); // slow down physic to avoid teleports
+        physic::update(std::min(10, (int) (currentTime - lastTime))); // slow down physic to avoid teleports
         draw(&screen);
-
-        fpsInTitle();
-        SDL_Delay(std::max(1000./fpsLimit - (SDL_GetTicks()-current_time), 0.));
     }
 
     return 0;
@@ -158,7 +151,7 @@ int main(int argc, char *argv[])
 
 void draw(SDL_Window** screen)
 {
-    //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity( );
 
@@ -166,14 +159,6 @@ void draw(SDL_Window** screen)
 
     glFlush();
     SDL_GL_SwapWindow(*screen);
-}
-
-void fpsInTitle(){
-    std::string fps = "FPS: " + std::to_string((int)(1000./ellapsed_time));
-    std::string time_str = std::to_string((SDL_GetTicks()-current_time));
-    std::string *title = &fps;
-
-    SDL_SetWindowTitle(screen, title -> c_str());
 }
 
 void addWindowBoundaries(){
