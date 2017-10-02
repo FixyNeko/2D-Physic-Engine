@@ -21,6 +21,7 @@ public:
 
     Circle& translate(Vec2 v);
     double getRadius() const;
+    Vec2& getPosition();
     virtual int getType() const;
     virtual void draw() const;
 };
