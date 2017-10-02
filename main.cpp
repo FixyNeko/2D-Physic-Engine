@@ -23,32 +23,22 @@ unsigned int last_time, current_time, ellapsed_time, start_time;
 SDL_Window *screen;
 
 Object* addCircle(){
-    Circle* circles2 = new Circle(20/2);
-    Object* circle2 = new Object(7854, 50, 0.9, 0.2, 0.1, circles2, false);
-    circle2->move(Vec2(20, 200));
-    circle2->addVelocity(Vec2(500, 200));
-    addObject(circle2);
+    Circle* circles = new Circle(20/2);
+    Object* circle = new Object(7854, 7854*10*10/2, 0.9, 300, 100, circles, false);
+    addObject(circle);
 
-    return circle2;
+    return circle;
 }
 
 Object* addPoly(){
     std::vector<Vec2*> vertexs;
-    int vertexN = 8;
-    double radius = 20;
-    for(int i = 0; i < vertexN; i++){
-        Vec2* v = new Vec2(radius, 0);
-        v->rotate(360*i/vertexN);
-        vertexs.push_back(v);
-    }
-/*    vertexs.push_back(new Vec2(-200, 10));
+    vertexs.push_back(new Vec2(-200, 10));
     vertexs.push_back(new Vec2(-200, -10));
     vertexs.push_back(new Vec2(200, -10));
     vertexs.push_back(new Vec2(200, 10));
-*/
+
     Poly* polys = new Poly(vertexs);
-    Object* poly = new Object(10000000, 0.1,  0.05, 300., 100., polys, false);
-    poly->move(Vec2(0, -300));
+    Object* poly = new Object(5000, 0/*NOT USED*/,  0.05, 300., 100., polys, false);
     addObject(poly);
 
     return poly;
@@ -56,7 +46,6 @@ Object* addPoly(){
 
 void addFloor(){
     std::vector<double> heightGen;
-    std::vector<Vec2*> vertexs;
     double width = WINDOW_WIDTH / 15;
     srand(time(NULL)); // random initialisation
 
@@ -66,7 +55,8 @@ void addFloor(){
     }
 
     for(int i = 0; i < 15; i++){
-        vertexs.clear();
+        
+        std::vector<Vec2*> vertexs;
         vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + i*width, 0));
         vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + (1+i)*width,0));
         vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + (1+i)*width, heightGen[i+1]/2 + heightGen[i+2]/2));
@@ -87,6 +77,7 @@ int main(int argc, char *argv[])
 
     addFloor();
     Object* poly = addPoly();
+    Object* circle = addCircle();
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     SDL_Event event;
@@ -114,9 +105,6 @@ int main(int argc, char *argv[])
     glLoadIdentity();
     gluOrtho2D(-WINDOW_WIDTH/2, WINDOW_WIDTH/2, -WINDOW_HEIGHT/2, WINDOW_HEIGHT/2);
 
-    physic::update(0);
-    draw(&screen);
-
     last_time = SDL_GetTicks();
 
     for (;;)
@@ -130,17 +118,20 @@ int main(int argc, char *argv[])
                     case SDLK_e:
                         addPoly();
                         break;
+                    case SDLK_a:
+                        addCircle();
+                        break;
                     case SDLK_z:
-                        poly->addVelocity(Vec2(0,50));
+                        circle->addVelocity(Vec2(0,50));
                         break;
                     case SDLK_s:
-                        poly->addVelocity(Vec2(0,-10));
+                        circle->addVelocity(Vec2(0,-10));
                         break;
                     case SDLK_q:
-                        poly->addRotationVelocity(5);
+                        circle->addRotationVelocity(5);
                         break;
                     case SDLK_d:
-                        poly->addRotationVelocity(-5);
+                        circle->addRotationVelocity(-5);
                         break;
                 }
                 break;
