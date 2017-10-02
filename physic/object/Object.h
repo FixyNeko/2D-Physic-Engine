@@ -2,6 +2,7 @@
 #define DEF_OBJECT
 
 #include "shapes/Shape.h"
+#include "shapes/Circle.h"
 #include "shapes/Polygon.h"
 #include "../utils/Vec2.h"
 #include <cmath>
@@ -16,12 +17,14 @@ class Object
     double restitution;
     double staticFriction;
     double dynamicFriction;
-    Shape* shape;
     bool isStatic;
     Vec2 position;
     Vec2 velocity;
     double rotation;
     double rotationVelocity;
+    
+    Shape* shape;
+    Shape* broadShape;
 
 public:
     Object(double mass, double inertia, double restitution, double staticFriction, double dynamicFriction, Shape* shape, bool isStatic);
@@ -36,6 +39,8 @@ public:
     double getInvMass() const;
     double getInvInertia() const;
     Shape* getShape();
+    Shape* setShape(Shape* shape);
+    Shape* getBroad();
     double& setMass(double& _mass);
     double& setInertia(double& _inertia);
     bool& setStatic(bool _isStatic);

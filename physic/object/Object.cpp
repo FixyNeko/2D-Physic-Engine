@@ -10,6 +10,8 @@ Object::Object(double _mass, double _inertia, double _restitution, double _stati
             case _POLYGON:
                 {
                     Poly* s = (Poly*) _shape;
+                    Vec2 vertexsSum;
+
                     std::vector<Vec2*> vertexs = s->getVertexs();
                     double sum = 0;
                     double divider = 0;
@@ -19,19 +21,37 @@ Object::Object(double _mass, double _inertia, double _restitution, double _stati
                         sum += std::abs(cross(v1, v2)) * (dot(v1, v1) + dot(v1, v2) + dot(v2, v2));
 
                         divider += std::abs(cross(v2, v1));
+
+                        vertexsSum += *vertexs[i];
                     }
                     double i = _mass/6.*sum/divider;
-                    this->setInertia(i); // in this case inertia is just density
+                    this->setInertia(i); // inertia based on mass
+
+                    vertexsSum /= vertexs.size();
+                    double farthest = 0;
+
+                    for(int i = 0; i < vertexs.size(); i++){
+                        Vec2 point = *vertexs[i] - vertexsSum;
+                        if(farthest < point.lengthSquared())
+                            farthest = point.lengthSquared();
+                    }
+
+                    broadShape = new Circle(vertexsSum, sqrt(farthest));
                 }
                 break;
             
             default:
-                this->setInertia(_inertia);
+                {
+                    broadShape = _shape;
+                    this->setInertia(_inertia);
+                }
                 break;
         }
 
         position = velocity = Vec2();
         rotation = rotationVelocity = 0;
+
+
 }
 
 Vec2& Object::getVelocity(){
@@ -75,6 +95,15 @@ double Object::getInvInertia() const{
 
 Shape* Object::getShape(){
     return shape;
+}
+
+Shape* Object::setShape(Shape* s){
+    shape = s;
+    return shape;
+}
+
+Shape* Object::getBroad(){
+    return broadShape;
 }
 
 double& Object::setMass(double& _mass){
