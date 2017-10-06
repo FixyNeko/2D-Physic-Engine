@@ -39,6 +39,16 @@ Object::Object(double _mass, double _inertia, double _restitution, double _stati
                     broadShape = new Circle(vertexsSum, sqrt(farthest));
                 }
                 break;
+
+            case _CIRCLE:
+                {
+                    broadShape = _shape;
+                    Circle* s = (Circle*) _shape;
+                    double radius = s->getRadius();
+                    double iner = _mass*radius*radius/2;
+                    this->setInertia(iner);
+                }
+                break;
             
             default:
                 {

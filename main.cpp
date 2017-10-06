@@ -11,6 +11,7 @@
 #include "physic/object/shapes/AABB.h"
 #include "physic/object/shapes/Circle.h"
 #include "physic/physic.h"
+#include "physic/utils/sdlglutils.h"
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 1000
 
@@ -23,7 +24,7 @@ SDL_Window *screen;
 
 Object* addCircle(){
     Circle* circles = new Circle(20/2);
-    Object* circle = new Object(7854, 7854*10*10/2, 0.9, 300, 100, circles, false);
+    Object* circle = new Object(7854, 0/*NOT USED*/, 0.9, 3000, 1000, circles, false);
     addObject(circle);
 
     return circle;
@@ -37,7 +38,7 @@ Object* addPoly(){
     vertexs.push_back(new Vec2(200, 10));
 
     Poly* polys = new Poly(vertexs);
-    Object* poly = new Object(5000, 0/*NOT USED*/,  0.05, 300., 100., polys, false);
+    Object* poly = new Object(50000, 0/*NOT USED*/,  0.05, 300., 100., polys, false);
     addObject(poly);
 
     return poly;

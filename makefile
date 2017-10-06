@@ -5,7 +5,7 @@ INCD=\
 INCD_P=$(foreach d, $(INCD), -I$d)
 
 INC=mingw32 \
-	SDL2main SDL2 \
+	SDL2main SDL2 SDL2_image\
 	opengl32 glu32 freeglut
 INC_P=$(foreach i, $(INC), -l$i)
 
@@ -15,7 +15,8 @@ CPP=main.cpp physic\physic.cpp \
 	physic\object\shapes\Circle.cpp \
 	physic\object\shapes\Polygon.cpp \
 	physic\object\shapes\Shape.cpp \
-	physic\utils\Vec2.cpp
+	physic\utils\Vec2.cpp \
+	physic\utils\sdlglutils.cpp
 
 main: main.cpp
 	g++ $(CPP) -o main -LD:\Documents\C++\Libraries\SDL2\lib $(INCD_P) $(INC_P)
