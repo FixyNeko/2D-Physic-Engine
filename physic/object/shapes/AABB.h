@@ -3,6 +3,7 @@
 
 #include "../../utils/Vec2.h"
 #include "Shape.h"
+#include <GL/gl.h>
 
 class AABB: public Shape
 {
@@ -16,7 +17,7 @@ public:
     AABB& translate(Vec2 v);
     AABB& rotate(double angle);
     virtual int getType() const;
-    virtual void draw() const;
+    virtual void draw(GLuint textureID, double textureZoom) const;
 };
 
 #endif

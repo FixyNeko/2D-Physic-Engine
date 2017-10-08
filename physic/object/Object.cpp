@@ -2,8 +2,8 @@
 #include <iostream>
 #include <GL/gl.h>
 
-Object::Object(double _mass, double _inertia, double _restitution, double _staticFriction, double _dynamicFriction, Shape* _shape, bool _isStatic):
-    restitution(_restitution), staticFriction(_staticFriction), dynamicFriction(_dynamicFriction), shape(_shape), isStatic(_isStatic){
+Object::Object(double _mass, double _inertia, double _restitution, double _staticFriction, double _dynamicFriction, Shape* _shape, bool _canMove, bool _canRotate, GLuint _textureID, double _textureZoom):
+    restitution(_restitution), staticFriction(_staticFriction), dynamicFriction(_dynamicFriction), shape(_shape), canMove(_canMove), canRotate(_canRotate), textureID(_textureID), textureZoom(_textureZoom){
         this->setMass(_mass);
 
         switch(shape->getType()){
@@ -50,10 +50,14 @@ Object::Object(double _mass, double _inertia, double _restitution, double _stati
                 }
                 break;
             
-            default:
+            case _AABB:
                 {
                     broadShape = _shape;
-                    this->setInertia(_inertia);
+                    AABB* s = (AABB*) _shape;
+                    double h = s->max.getY() - s->min.getY() + (s->max.getY() + s->min.getY())/2;
+                    double w = s->max.getX() - s->min.getX() + (s->max.getX() + s->min.getX())/2;
+                    double iner = _mass/12 * (h*h + w*w);
+                    this->setInertia(iner);
                 }
                 break;
         }
@@ -134,34 +138,34 @@ double& Object::setInertia(double& _inertia){
     return inertia;
 }
 
-bool& Object::setStatic(bool _isStatic){
-    isStatic = _isStatic;
-    return isStatic;
+bool& Object::setStatic(bool _canMove){
+    canMove = _canMove;
+    return canMove;
 }
 
 bool& Object::getStatic(){
-    return isStatic;
+    return canMove;
 }
 
 void Object::addVelocity(const Vec2& v){
-    if(isStatic) return;
+    if(!canMove) return;
     Vec2 w = v;
     velocity += w;
 }
 
 void Object::move(const Vec2& v){
-    if(isStatic) return;
+    if(!canMove) return;
     Vec2 w = v;
     position += w;
 }
 
 void Object::addRotationVelocity(double r){
-    if(isStatic) return;
+    if(!canRotate) return;
     rotationVelocity += r;
 }
 
 void Object::addRotation(double r){
-    if(isStatic) return;
+    if(!canRotate) return;
     rotation += r;
 }
 
@@ -169,6 +173,6 @@ void Object::draw(){
     glPushMatrix();
     glTranslated(position.getX(), position.getY(), 0);
     glRotated(rotation * 180 / M_PI, 0, 0, 1);
-    shape->draw();
+    shape->draw(textureID, textureZoom);
     glPopMatrix();
 }

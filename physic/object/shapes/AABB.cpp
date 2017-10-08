@@ -24,12 +24,13 @@ int AABB::getType() const{
     return type;
 }
 
-void AABB::draw() const{
-    glBegin(GL_LINE_LOOP);
-        glVertex2d(min.getX(), min.getY());
-        glVertex2d(min.getX(), max.getY());
-        glVertex2d(max.getX(), max.getY());
-        glVertex2d(max.getX(), min.getY());
+void AABB::draw(GLuint textureID, double textureZoom) const{
+    glBindTexture(GL_TEXTURE_2D, textureID); 
+    glBegin(GL_POLYGON);
+        glTexCoord2d(min.getX() / textureZoom + 0.5, min.getY() / textureZoom + 0.5); glVertex2d(min.getX(), min.getY());
+        glTexCoord2d(min.getX() / textureZoom + 0.5, max.getY() / textureZoom + 0.5); glVertex2d(min.getX(), max.getY());
+        glTexCoord2d(max.getX() / textureZoom + 0.5, max.getY() / textureZoom + 0.5); glVertex2d(max.getX(), max.getY());
+        glTexCoord2d(max.getX() / textureZoom + 0.5, min.getY() / textureZoom + 0.5); glVertex2d(max.getX(), min.getY());
     glEnd();
 
     

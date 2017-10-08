@@ -7,7 +7,7 @@ int Shape::getType() const{
     return NULL;
 }
 
-void Shape::draw() const{
+void Shape::draw(GLuint textureID, double textureZoom) const{
     GLUquadric* params = gluNewQuadric();
     gluQuadricDrawStyle(params, GLU_LINE);
     gluSphere(params, 150, 5, 5);

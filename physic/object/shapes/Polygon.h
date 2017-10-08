@@ -21,7 +21,7 @@ public:
 
     std::vector<Vec2 *> getVertexs() const;
     virtual int getType() const;
-    virtual void draw() const;
+    virtual void draw(GLuint textureID, double textureZoom) const;
 };
 
 #endif

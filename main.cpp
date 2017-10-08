@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <GL/glext.h>
 #include <GL/freeglut.h>
 #include <string>
 #include <iostream>
@@ -12,10 +14,10 @@
 #include "physic/object/shapes/Circle.h"
 #include "physic/physic.h"
 #include "physic/utils/sdlglutils.h"
-#define WINDOW_WIDTH 1000
-#define WINDOW_HEIGHT 1000
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
-int msaa = 16;
+int msaa = 4;
 
 double angleX = 0, angleZ = 0;
 
@@ -23,28 +25,39 @@ unsigned int lastTime, currentTime;
 SDL_Window *screen;
 
 Object* addCircle(){
-    Circle* circles = new Circle(20/2);
-    Object* circle = new Object(7854, 0/*NOT USED*/, 0.9, 3000, 1000, circles, false);
+    GLuint textureID = loadTexture("resources/textures/blocks/dirt.png");
+    Circle* circles = new Circle(100/2);
+    Object* circle = new Object(7854, 0/*NOT USED*/, 0.7, 3000, 1000, circles, true, true, textureID, 150);
     addObject(circle);
-
     return circle;
 }
 
+Object* addPlayer(){
+    GLuint textureID = loadTexture("resources/textures/player/left_0.png");
+    AABB* aabbs = new AABB(17, 64);
+    Object* aabb = new Object(75000, 1, 0., 20000, 15000, aabbs, true, false, textureID, 64);
+    addObject(aabb);
+
+    return aabb;
+}
+
 Object* addPoly(){
+    GLuint textureID = loadTexture("resources/textures/blocks/dirt.png");
     std::vector<Vec2*> vertexs;
     vertexs.push_back(new Vec2(-200, 10));
     vertexs.push_back(new Vec2(-200, -10));
     vertexs.push_back(new Vec2(200, -10));
     vertexs.push_back(new Vec2(200, 10));
-
+    
     Poly* polys = new Poly(vertexs);
-    Object* poly = new Object(50000, 0/*NOT USED*/,  0.05, 300., 100., polys, false);
+    Object* poly = new Object(50000, 0/*NOT USED*/,  0.05, 300., 100., polys, true, true,  textureID, 100);
     addObject(poly);
 
     return poly;
 }
 
 void addFloor(){
+    GLuint textureID = loadTexture("textures/blocks/hay_block_top.png");
     std::vector<double> heightGen;
     double width = WINDOW_WIDTH / 15;
     srand(time(NULL)); // random initialisation
@@ -53,7 +66,6 @@ void addFloor(){
         double random = (i == 0-1 || i == 14+1) ? WINDOW_HEIGHT : std::rand() % 50 + 20;
         heightGen.push_back(random);
     }
-
     for(int i = 0; i < 15; i++){
         
         std::vector<Vec2*> vertexs;
@@ -63,26 +75,19 @@ void addFloor(){
         vertexs.push_back(new Vec2(-WINDOW_WIDTH/2 + i*width, heightGen[i]/2 + heightGen[i+1]/2));
 
         Shape* polys = new Poly(vertexs);
-        Object* poly = new Object(0, 0., 1., 1., 1., polys, false);
+        Object* poly = new Object(0, 0., 1., 1., 1., polys, true, false, textureID, 100);
         poly->move(Vec2(0, -400));
-        poly->setStatic(true);
+        poly->setStatic(false);
         addObject(poly);
     }
 }
 
 int main(int argc, char *argv[])
 {
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    //addWindowBoundaries();
-
-    addFloor();
-    Object* poly = addPoly();
-    Object* circle = addCircle();
-    ////////////////////////////////////////////////////////////////////////////////////////////
+    SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Event event;
 
-    SDL_Init(SDL_INIT_VIDEO);
     atexit(SDL_Quit);
 
     if(msaa){
@@ -94,14 +99,38 @@ int main(int argc, char *argv[])
                                 SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED,
                                 WINDOW_WIDTH, WINDOW_HEIGHT,
-                                SDL_WINDOW_OPENGL);
+                                SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP);
+
     SDL_GLContext glcontext = SDL_GL_CreateContext(screen);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    //addWindowBoundaries();
+    addFloor();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    Object* player = addPlayer();
+    float color[] = { 0,0,0,0 };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    addCircle();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    Object* circle = addCircle();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
     if(msaa)
         glEnable(GLUT_MULTISAMPLE);
 
     glMatrixMode( GL_PROJECTION );
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glLoadIdentity();
     gluOrtho2D(-WINDOW_WIDTH/2, WINDOW_WIDTH/2, -WINDOW_HEIGHT/2, WINDOW_HEIGHT/2);
 
@@ -112,33 +141,28 @@ int main(int argc, char *argv[])
         SDL_PollEvent(&event);
         switch(event.type)
         {
-            case SDL_KEYDOWN:
-                switch(event.key.keysym.sym)
-                {
-                    case SDLK_e:
-                        addPoly();
-                        break;
-                    case SDLK_a:
-                        addCircle();
-                        break;
-                    case SDLK_z:
-                        circle->addVelocity(Vec2(0,50));
-                        break;
-                    case SDLK_s:
-                        circle->addVelocity(Vec2(0,-10));
-                        break;
-                    case SDLK_q:
-                        circle->addRotationVelocity(5);
-                        break;
-                    case SDLK_d:
-                        circle->addRotationVelocity(-5);
-                        break;
-                }
-                break;
             case SDL_QUIT:
                 exit(0);
                 break;
         }
+
+        const Uint8 *state = SDL_GetKeyboardState(NULL);
+        
+        if (state[SDL_SCANCODE_Q]){
+            addCircle();
+        }
+        if (state[SDL_SCANCODE_E]){
+            addPoly();
+        }
+        if (state[SDL_SCANCODE_W])
+            circle->addVelocity(Vec2(0,10));
+        if (state[SDL_SCANCODE_S])
+            circle->addVelocity(Vec2(0,-10));
+        if (state[SDL_SCANCODE_A])
+            circle->addRotationVelocity(1);
+        if (state[SDL_SCANCODE_D])
+            circle->addRotationVelocity(-1);
+
 
         lastTime = currentTime;
         currentTime = SDL_GetTicks();
@@ -152,7 +176,7 @@ int main(int argc, char *argv[])
 
 void draw(SDL_Window** screen)
 {
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear( GL_COLOR_BUFFER_BIT);
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity( );
 
@@ -161,7 +185,7 @@ void draw(SDL_Window** screen)
     glFlush();
     SDL_GL_SwapWindow(*screen);
 }
-
+/*
 void addWindowBoundaries(){
     AABB* horizontals = new AABB(WINDOW_WIDTH + 200, 100);
     AABB* verticals = new AABB(100, WINDOW_HEIGHT + 200);
@@ -183,4 +207,4 @@ void addWindowBoundaries(){
     addObject(bottom);
     addObject(left);
     addObject(right);
-}
+}*/

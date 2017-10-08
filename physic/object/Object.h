@@ -2,6 +2,7 @@
 #define DEF_OBJECT
 
 #include "shapes/Shape.h"
+#include "shapes/AABB.h"
 #include "shapes/Circle.h"
 #include "shapes/Polygon.h"
 #include "../utils/Vec2.h"
@@ -17,17 +18,21 @@ class Object
     double restitution;
     double staticFriction;
     double dynamicFriction;
-    bool isStatic;
+    bool canMove;
+    bool canRotate;
     Vec2 position;
     Vec2 velocity;
     double rotation;
     double rotationVelocity;
+
+    GLuint textureID;
+    double textureZoom;
     
     Shape* shape;
     Shape* broadShape;
 
 public:
-    Object(double mass, double inertia, double restitution, double staticFriction, double dynamicFriction, Shape* shape, bool isStatic);
+    Object(double mass, double inertia, double restitution, double staticFriction, double dynamicFriction, Shape* shape, bool canMove, bool canRotate, GLuint textureID, double textureZoom);
     Vec2& getVelocity();
     Vec2& getPosition();
     double getRotation();
@@ -43,7 +48,7 @@ public:
     Shape* getBroad();
     double& setMass(double& _mass);
     double& setInertia(double& _inertia);
-    bool& setStatic(bool _isStatic);
+    bool& setStatic(bool _canMove);
     bool& getStatic();
     void addVelocity(const Vec2& v);
     void move(const Vec2& v);

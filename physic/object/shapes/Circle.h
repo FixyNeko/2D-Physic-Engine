@@ -23,7 +23,7 @@ public:
     double getRadius() const;
     Vec2& getPosition();
     virtual int getType() const;
-    virtual void draw() const;
+    virtual void draw(GLuint textureID, double textureZoom) const;
 };
 
 #endif

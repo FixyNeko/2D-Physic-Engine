@@ -26,7 +26,6 @@ void resolveCollision(Manifold *m)
     glEnable(GL_POINT_SIZE);
     glPointSize(5);
     glBegin(GL_POINTS);
-        glColor3ub(0,255,0);
         glVertex2d(m->contactPosition.getX(), m->contactPosition.getY());
     glEnd();
 
@@ -132,7 +131,7 @@ void update(int dt)
         Shape *a = m->A->getShape();
         Shape *b = m->B->getShape();
 
-        if (!(m->A->getStatic() && m->B->getStatic()) && broadPhase(m) && collisionResolverArray[a->getType()][b->getType()](m))
+        if ((m->A->getStatic() || m->B->getStatic()) && broadPhase(m) && collisionResolverArray[a->getType()][b->getType()](m))
         {
             resolveCollision(m);
             positionCorrection(m);
@@ -205,7 +204,7 @@ bool AABBvsCIRCLE(Manifold *m)
     closest = Vec2(clamp(-x_extent / 2, x_extent / 2, closest.getX()),
                    clamp(-y_extent / 2, y_extent / 2, closest.getY()));
 
-    bool inside = false; // spécial case if center of circle is in the box
+    bool inside = false; // special case if center of circle is in the box
 
     if (n == closest)
     {
@@ -240,6 +239,7 @@ bool AABBvsCIRCLE(Manifold *m)
     else
         m->normal = normal / d;
     m->penetrationDepth = r - d;
+    m->contactPosition = closest;
 
     return true;
 }
@@ -274,6 +274,7 @@ bool CIRCLEvsCIRCLE(Manifold *m)
     {
         m->penetrationDepth = std::max(a->getRadius(), b->getRadius());
         m->normal = Vec2(0, 1); //default direction
+        m->contactPosition = A->getPosition();
     }
     return true;
 }
@@ -576,6 +577,9 @@ bool broadPhase(Manifold* m){
     m->B->setShape(m->B->getBroad());
 
     bool broadPhasePassed = true;
+
+    m->A->draw();
+    m->B->draw();
 
     if(!collisionResolverArray[m->A->getShape()->getType()][m->B->getShape()->getType()](m))
         broadPhasePassed = false;

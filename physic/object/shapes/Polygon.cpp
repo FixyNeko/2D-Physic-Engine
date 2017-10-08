@@ -12,13 +12,14 @@ int Poly::getType() const{
     return type;
 }
 
-void Poly::draw() const{
-    glBegin(GL_LINE_STRIP);
-    glColor3ub(255,255,255);
-    glVertex2d(0,0);
+void Poly::draw(GLuint textureID, double textureZoom) const{
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glBegin(GL_POLYGON);
         for(int i = 0; i < vertexs.size(); i++){
-            glVertex2d(vertexs[i]->getX(), vertexs[i]->getY());
+            double x = vertexs[i]->getX();
+            double y = vertexs[i]->getY();
+            glTexCoord2d(x/textureZoom + 0.5, y/textureZoom + 0.5);
+            glVertex2d(x, y);
         }
-        glVertex2d(vertexs[0]->getX(), vertexs[0]->getY());
     glEnd();
 }
