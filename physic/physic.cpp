@@ -131,7 +131,7 @@ void update(int dt)
         Shape *a = m->A->getShape();
         Shape *b = m->B->getShape();
 
-        if ((m->A->canMove() || m->B->canMove()) && broadPhase(m) && collisionResolverArray[a->getType()][b->getType()](m))
+        if ((m->A->getCanMove() || m->B->getCanMove()) && broadPhase(m) && collisionResolverArray[a->getType()][b->getType()](m))
         {
             resolveCollision(m);
             positionCorrection(m);

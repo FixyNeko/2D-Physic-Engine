@@ -49,7 +49,7 @@ public:
     double& setMass(double& _mass);
     double& setInertia(double& _inertia);
     bool& setStatic(bool _canMove);
-    bool& canMove();
+    bool& getCanMove();
     void addVelocity(const Vec2& v);
     void move(const Vec2& v);
     void addRotationVelocity(double rotationVelocity);

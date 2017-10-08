@@ -143,7 +143,7 @@ bool& Object::setStatic(bool _canMove){
     return canMove;
 }
 
-bool& Object::canMove(){
+bool& Object::getCanMove(){
     return canMove;
 }
 
