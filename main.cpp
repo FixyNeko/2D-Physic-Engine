@@ -27,18 +27,23 @@ SDL_Window *screen;
 Object* addCircle(){
     GLuint textureID = loadTexture("resources/textures/blocks/dirt.png");
     Circle* circles = new Circle(100/2);
-    Object* circle = new Object(7854, 0/*NOT USED*/, 0.7, 3000, 1000, circles, true, true, textureID, 150);
+    Object* circle = new Object(1000, 0/*NOT USED*/, 0.7, 3000, 1000, circles, true, true, textureID, 150);
     addObject(circle);
     return circle;
 }
 
 Object* addPlayer(){
     GLuint textureID = loadTexture("resources/textures/player/left_0.png");
-    AABB* aabbs = new AABB(17, 64);
-    Object* aabb = new Object(75000, 1, 0., 20000, 15000, aabbs, true, false, textureID, 64);
-    addObject(aabb);
+    std::vector<Vec2*> vertexs;
+    vertexs.push_back(new Vec2(-16/2, -64/2));
+    vertexs.push_back(new Vec2(16/2, -64/2));
+    vertexs.push_back(new Vec2(16/2, 64/2));
+    vertexs.push_back(new Vec2(-16/2, 64/2));
+    Poly* playerShape = new Poly(vertexs);
+    Object* player = new Object(75, 1, 0., 20000, 15000, playerShape, true, false, textureID, 64);
+    addObject(player);
 
-    return aabb;
+    return player;
 }
 
 Object* addPoly(){

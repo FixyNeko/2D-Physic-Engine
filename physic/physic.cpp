@@ -79,8 +79,8 @@ void positionCorrection(Manifold *m)
 {
     Object *A = m->A;
     Object *B = m->B;
-    const float percent = 0.8;  // Usually 20% - 80%
-    const float treshold = 0.1; // Usually 0.01 to 0.1 //counted in units, the biger your objects/gravity, the bigger this value
+    const float percent = 1;  // Usually 20% - 80%
+    const float treshold = 0.01; // Usually 0.01 to 0.1 //counted in units, the biger your objects/gravity, the bigger this value
     if (m->penetrationDepth < treshold)
         return;
     Vec2 correction = m->normal * (m->penetrationDepth * percent / (A->getInvMass() + B->getInvMass()));
